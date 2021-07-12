@@ -5,7 +5,8 @@ from blessed import Terminal
 
 
 def load_screen(screen: str, *args, **kwargs) -> None:
-    """Loads a screen from the `screens` directory
+    """
+    Loads a screen from the `screens` directory
 
     This function is merely a helper function to manage multiple screens.
     It requires the screens directory be on path otherwise
