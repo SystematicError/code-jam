@@ -3,7 +3,7 @@ from blessed import Terminal
 
 def print_options(selection: int, options: list, terminal: Terminal) -> None:
     """
-    Prints the options provided and highlights the active selection
+    Prints the options provided and highlights the active selection.
 
     Args:
         selection (int): A zero indexed integer representing the current selection
@@ -22,7 +22,7 @@ def print_options(selection: int, options: list, terminal: Terminal) -> None:
 
 def get_selection(options: list, terminal: Terminal) -> int:
     """
-    An interactive prompt for the user to select an option from a list of options
+    An interactive prompt for the user to select an option from a list of options.
 
     Args:
         options (list): List of options for the user choose from
@@ -41,11 +41,11 @@ def get_selection(options: list, terminal: Terminal) -> int:
                 key = terminal.inkey()
 
                 if key.name == "KEY_UP":
-                    selection -= 1 if selection != 0 else 0
+                    selection = (selection - 1) % len(options)
                     print_options(selection, options, terminal)
 
                 elif key.name == "KEY_DOWN":
-                    selection += 1 if selection != (len(options) - 1) else 0
+                    selection = (selection + 1) % len(options)
                     print_options(selection, options, terminal)
 
                 elif key.name == "KEY_ENTER":
@@ -53,5 +53,5 @@ def get_selection(options: list, terminal: Terminal) -> int:
 
 
 def on_screen_load(options: list, terminal: Terminal) -> int:
-    """Callback for loading a screen"""
+    """Callback for loading a screen."""
     return get_selection(options, terminal)
