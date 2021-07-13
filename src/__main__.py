@@ -2,7 +2,6 @@ from blessed import Terminal
 
 from .screens import main_menu
 
-
 terminal = Terminal()
 menu_options = ["Play", "How to play", "Credits"]
 
