@@ -52,6 +52,6 @@ def get_selection(options: list, terminal: Terminal) -> int:
                     return selection
 
 
-def on_screen_load(options: list, terminal: Terminal) -> int:
+def load_screen(options: list, terminal: Terminal) -> int:
     """Callback for loading a screen."""
     return get_selection(options, terminal)
