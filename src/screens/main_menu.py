@@ -39,7 +39,7 @@ def get_selection(options: list, terminal: Terminal) -> int:
 
     with terminal.fullscreen() and terminal.hidden_cursor():
         terminal_size = terminal.width, terminal.height
-        
+
         print(terminal.clear)
 
         border.load_screen(terminal)

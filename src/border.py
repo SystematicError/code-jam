@@ -12,7 +12,7 @@ def draw_boundary(terminal: Terminal) -> None:
     """
     Prints a border around the app. The border is as big as the terminal.
     Before the border is drawn, the terminal gets cleared.
-    
+
     Args:
         terminal (Terminal): A blessed.Terminal object.
     """
