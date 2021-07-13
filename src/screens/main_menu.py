@@ -10,8 +10,8 @@ def print_options(selection: int, options: list, terminal: Terminal) -> None:
         options (list): The list of options to print
         terminal (Terminal): A blessed.Terminal object
     """
-    print(terminal.clear)
-    print(terminal.move_y(terminal.height // 2), end="")
+    print(terminal.clear, end="")
+    print(terminal.move_y(terminal.height // 2 - len(options) // 2), end="")
 
     for idx, option in enumerate(options):
         if idx == selection:
