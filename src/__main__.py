@@ -1,5 +1,6 @@
 from blessed import Terminal
 
+from . import border
 from .screens import main_menu
 
 terminal = Terminal()

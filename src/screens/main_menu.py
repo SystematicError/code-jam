@@ -1,5 +1,5 @@
 from blessed import Terminal
-
+from src import border
 
 def print_options(selection: int, options: list, terminal: Terminal) -> None:
     """
@@ -10,10 +10,13 @@ def print_options(selection: int, options: list, terminal: Terminal) -> None:
         options (list): The list of options to print
         terminal (Terminal): A blessed.Terminal object
     """
-    print(terminal.clear)
     print(terminal.move_y(terminal.height // 2), end="")
 
     for idx, option in enumerate(options):
+        
+        # Move the menu two chars to the side to not interfere with the border
+        print(terminal.move_right(2), end="")
+        
         if idx == selection:
             print(terminal.black + terminal.on_white + option + terminal.normal)
         else:
@@ -34,12 +37,23 @@ def get_selection(options: list, terminal: Terminal) -> int:
     selection = 0
 
     with terminal.fullscreen() and terminal.hidden_cursor():
+        terminal_size = terminal.width, terminal.height
+        
+        print(terminal.clear)
+        
+        border.load_screen(terminal)
         print_options(selection, options, terminal)
-
         while True:
             with terminal.cbreak():  # Without terminal.cbreak, the terminal cannot take in any input
-                key = terminal.inkey()
-
+                key = terminal.inkey(timeout=0.1)
+                
+                # Resize border if the terminal size gets changed
+                if (terminal.width, terminal.height) != terminal_size:
+                    print(terminal.clear)
+                    border.load_screen(terminal)
+                    print_options(selection, options, terminal)
+                    terminal_size = terminal.width, terminal.height
+                
                 if key.name == "KEY_UP":
                     selection = (selection - 1) % len(options)
                     print_options(selection, options, terminal)
@@ -50,6 +64,7 @@ def get_selection(options: list, terminal: Terminal) -> int:
 
                 elif key.name == "KEY_ENTER":
                     return selection
+
 
 
 def load_screen(options: list, terminal: Terminal) -> int:
