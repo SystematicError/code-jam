@@ -1,21 +1,20 @@
 from blessed import Terminal
 
-VERTICAL_EDGE = "║"
-HORIZONTAL_EDGE = "═"
-TOP_LEFT_CORNER = "╔"
-TOP_RIGHT_CORNER = "╗"
-BOTTOM_LEFT_CORNER = "╚"
-BOTTOM_RIGHT_CORNER = "╝"
-
 
 def draw_boundary(terminal: Terminal) -> None:
     """
-    Prints a border around the app. The border is as big as the terminal.
-    Before the border is drawn, the terminal gets cleared.
+    Prints a border around the app.
 
     Args:
         terminal (Terminal): A blessed.Terminal object.
     """
+    VERTICAL_EDGE = "║"
+    HORIZONTAL_EDGE = "═"
+    TOP_LEFT_CORNER = "╔"
+    TOP_RIGHT_CORNER = "╗"
+    BOTTOM_LEFT_CORNER = "╚"
+    BOTTOM_RIGHT_CORNER = "╝"
+
     # Upper edge
     print(terminal.move_xy(0, 0), HORIZONTAL_EDGE * (terminal.width - 1))
 
@@ -37,8 +36,3 @@ def draw_boundary(terminal: Terminal) -> None:
 
     # Bottom right corner
     print(terminal.move_xy(terminal.width - 1, terminal.height - 2) + BOTTOM_RIGHT_CORNER)
-
-
-def load_screen(terminal: Terminal) -> None:
-    """Callback for loading a screen."""
-    draw_boundary(terminal)

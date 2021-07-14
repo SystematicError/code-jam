@@ -1,6 +1,6 @@
 from blessed import Terminal
 
-from src import border
+from ..border import draw_boundary
 
 
 def print_options(selection: int, options: list, terminal: Terminal) -> None:
@@ -43,7 +43,7 @@ def get_selection(options: list, terminal: Terminal) -> int:
 
         print(terminal.clear)
 
-        border.load_screen(terminal)
+        draw_boundary(terminal)
         print_options(selection, options, terminal)
         while True:
             with terminal.cbreak():  # Without terminal.cbreak, the terminal cannot take in any input
@@ -52,7 +52,7 @@ def get_selection(options: list, terminal: Terminal) -> int:
                 # Resize border if the terminal size gets changed
                 if (terminal.width, terminal.height) != terminal_size:
                     print(terminal.clear)
-                    border.load_screen(terminal)
+                    draw_boundary(terminal)
                     print_options(selection, options, terminal)
                     terminal_size = terminal.width, terminal.height
 
