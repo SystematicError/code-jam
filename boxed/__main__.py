@@ -16,13 +16,13 @@ try:
     while True:
         action = main_menu.load_screen(menu_options, terminal)
 
-        if action == 0:    # Level selector
+        if action == 0:  # Level selector
             break
 
-        elif action == 1:    # Tutorial
+        elif action == 1:  # Tutorial
             pass
 
-        elif action == 2:    # Credits
+        elif action == 2:  # Credits
             credits.load_screen(authors, terminal)
 
         elif action == 3:
