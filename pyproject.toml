@@ -1,0 +1,38 @@
+[tool.poetry]
+name = "TODO_PLACEHOLDER"
+version = "0.0.1a"
+description = ""
+authors = [
+    "Numerlor",
+    "SystematicError",
+    "Abhishek10351",
+    "ShanTen",
+    "Aaris-Kazi",
+    "DrokoDomi",
+     ]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "3.9.*"
+
+blessed = "~1.18.1"
+
+[tool.poetry.dev-dependencies]
+# Base tools
+flake8 = "~3.7"
+isort = "~5.9"
+pre-commit = "~2.13.0"
+
+# Flake8 plugins, see https://github.com/python-discord/code-jam-template/tree/main#plugin-list
+flake8-annotations = "~2.0"
+flake8-bandit = "~2.1"
+flake8-docstrings = "~1.5"
+flake8-isort = "~4.0"
+
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.isort]
+multi_line_output=5
