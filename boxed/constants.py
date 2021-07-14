@@ -4,8 +4,8 @@ import enum
 class Border(str, enum.Enum):
     """Thin border characters."""
 
-    VERTICAL = "│"
     HORIZONTAL = "─"
+    VERTICAL = "│"
     DOWN_AND_RIGHT = "┌"
     DOWN_AND_HORIZONTAL = "┬"
     DOWN_AND_LEFT = "┐"
