@@ -1,8 +1,10 @@
 from blessed import Terminal
 
+import boxed
+
 from .screens import credits, grid, main_menu
 
-terminal = Terminal()
+boxed.terminal = Terminal()
 menu_options = ["Play", "How to play", "Credits", "Quit"]
 
 authors = {"Aaris-Kazi": "https://github.com/Aaris-Kazi",
@@ -14,19 +16,19 @@ authors = {"Aaris-Kazi": "https://github.com/Aaris-Kazi",
 
 try:
     while True:
-        action = main_menu.load_screen(menu_options, terminal)
+        action = main_menu.load_screen(menu_options)
 
         if action == 0:  # Level selector
-            grid.load_screen(cell_size=4, width=5, height=5, terminal=terminal)
+            grid.load_screen(cell_size=4, width=5, height=5)
 
         elif action == 1:  # Tutorial
             pass
 
         elif action == 2:  # Credits
-            credits.load_screen(authors, terminal)
+            credits.load_screen(authors)
 
         elif action == 3:
             raise KeyboardInterrupt()
 
 except KeyboardInterrupt:
-    print(terminal.clear)
+    print(boxed.terminal.clear)

@@ -5,6 +5,7 @@ import typing
 
 from blessed import Terminal
 
+import boxed
 from boxed.border import draw_boundary
 from boxed.constants import WBorder
 
@@ -64,7 +65,7 @@ class CellOpenings:
 class Cell:
     """Manage a single cell in a grid defined by `grid_dimensions`."""
 
-    def __init__(self, x_pos: int, y_pos: int, grid_dimensions: GridDimensions, terminal: Terminal):
+    def __init__(self, x_pos: int, y_pos: int, grid_dimensions: GridDimensions):
         self.size = grid_dimensions.cell_size
         self.x_pos = x_pos
         self.y_pos = y_pos
@@ -72,7 +73,6 @@ class Cell:
         self.rotatable = True
 
         self._grid_dimensions = grid_dimensions
-        self._terminal = terminal
 
     def generate_cell_lines(self) -> collections.abc.Iterable[str]:
         """Create the text representation of the cell as individual lines."""
@@ -111,12 +111,12 @@ class Cell:
         """Render the cell at its position in the grid."""
         x, y = self.get_cell_start()
         for row, line in enumerate(self.generate_cell_lines()):
-            print(self._terminal.move_xy(x, y + row), end="")
+            print(boxed.terminal.move_xy(x, y + row), end="")
             print(color_func("".join(line)))
 
     def get_cell_start(self) -> tuple[int, int]:
         """Get the coordinates of the left corner of cell."""
-        x, y = grid_center_offset_coords(self._grid_dimensions, self._terminal)
+        x, y = grid_center_offset_coords(self._grid_dimensions)
         x += (self._grid_dimensions.cell_size * WIDTH_MULTIPLIER * self.x_pos) + self.x_pos
         y += (self._grid_dimensions.cell_size * self.y_pos) + self.y_pos
         return x, y
@@ -205,45 +205,44 @@ class Cell:
 class Grid:
     """A grid of `Cell`s defined by `dimensions`."""
 
-    def __init__(self, dimensions: GridDimensions, terminal: Terminal):
+    def __init__(self, dimensions: GridDimensions):
         self.dimensions = dimensions
         self.cells = []
-        self._terminal = terminal
 
         for y_pos, x_pos, in itertools.product(range(dimensions.height), range(dimensions.width)):
-            self.cells.append(Cell(x_pos, y_pos, dimensions, terminal))
+            self.cells.append(Cell(x_pos, y_pos, dimensions))
 
     def print_grid(self) -> None:
         """Print all cells in a centered grid."""
         error_string = "Centered grid can't fit into terminal"
-        assert self.dimensions.char_width < self._terminal.width - 2, error_string  # noqa: S101
-        assert self.dimensions.char_height < self._terminal.height - 2, error_string  # noqa: S101
+        assert self.dimensions.char_width < boxed.terminal.width - 2, error_string  # noqa: S101
+        assert self.dimensions.char_height < boxed.terminal.height - 2, error_string  # noqa: S101
 
         for cell in self.cells:
             cell.render()
 
 
-def grid_center_offset_coords(grid_dimensions: GridDimensions, terminal: Terminal) -> tuple[int, int]:
+def grid_center_offset_coords(grid_dimensions: GridDimensions) -> tuple[int, int]:
     """Get coordinates of the top left corner of a centered grid with `grid_dimensions`."""
-    x = terminal.width // 2 - grid_dimensions.char_width // 2
-    y = terminal.height // 2 - grid_dimensions.char_height // 2
+    x = boxed.terminal.width // 2 - grid_dimensions.char_width // 2
+    y = boxed.terminal.height // 2 - grid_dimensions.char_height // 2
     return x, y
 
 
-def load_screen(cell_size: int, width: int, height: int, terminal: Terminal) -> None:
+def load_screen(cell_size: int, width: int, height: int) -> None:
     """Callback for loading a screen."""
-    grid = Grid(GridDimensions(cell_size, width, height), terminal)
+    grid = Grid(GridDimensions(cell_size, width, height))
     terminal_size = 0, 0
 
     while True:
-        with terminal.cbreak():
-            key = terminal.inkey(timeout=0.1)
+        with boxed.terminal.cbreak():
+            key = boxed.terminal.inkey(timeout=0.1)
             # Resize border if the terminal size gets changed
-            if (terminal.width, terminal.height) != terminal_size:
-                print(terminal.clear, end="")
-                draw_boundary(terminal)
+            if (boxed.terminal.width, boxed.terminal.height) != terminal_size:
+                print(boxed.terminal.clear, end="")
+                draw_boundary()
                 grid.print_grid()
-                terminal_size = terminal.width, terminal.height
+                terminal_size = boxed.terminal.width, boxed.terminal.height
 
             if key == "b":
                 break
@@ -252,32 +251,33 @@ def load_screen(cell_size: int, width: int, height: int, terminal: Terminal) -> 
 if __name__ == '__main__':
     # Grid demo
     terminal = Terminal()
+    boxed.terminal = terminal
     try:
         import random
         import time
 
         for cell_size in range(1, 6):
-            print(terminal.clear, end="")
-            grid = Grid(GridDimensions(cell_size, 6, 6), terminal)
+            print(boxed.terminal.clear, end="")
+            grid = Grid(GridDimensions(cell_size, 6, 6))
             grid.print_grid()
 
             cell = random.choice(grid.cells)
-            print(terminal.move_xy(0, 0), end="")
+            print(boxed.terminal.move_xy(0, 0), end="")
             print(cell, end="    ")
             cell.openings.reverse_opening(Direction.UP)
             cell.openings.reverse_opening(Direction.DOWN)
             cell.render()
             for _ in range(2):
-                cell.render(terminal.black_on_white)
+                cell.render(boxed.terminal.black_on_white)
                 time.sleep(0.3)
-                cell.render(terminal.white_on_black)
+                cell.render(boxed.terminal.white_on_black)
                 time.sleep(0.3)
 
             for _ in range(5):
                 cell.openings.rotate()
-                print(terminal.move_xy(0, 0), end="")
+                print(boxed.terminal.move_xy(0, 0), end="")
                 print(cell, end="    ")
                 cell.render()
                 time.sleep(0.5)
     finally:
-        print(terminal.move_xy(0, terminal.height), end="")
+        print(boxed.terminal.move_xy(0, boxed.terminal.height), end="")
