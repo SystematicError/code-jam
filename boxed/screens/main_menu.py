@@ -13,6 +13,7 @@ def print_options(selection: int, options: list, terminal: Terminal) -> None:
         terminal (Terminal): A blessed.Terminal object
     """
     print(terminal.clear, end="")
+    draw_boundary(terminal)
     print(terminal.move_y(terminal.height // 2 - len(options) // 2), end="")
 
     for idx, option in enumerate(options):
@@ -44,7 +45,6 @@ def get_selection(options: list, terminal: Terminal) -> int:
 
         print(terminal.clear)
 
-        draw_boundary(terminal)
         print_options(selection, options, terminal)
         while True:
             with terminal.cbreak():  # Without terminal.cbreak, the terminal cannot take in any input
