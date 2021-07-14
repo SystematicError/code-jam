@@ -26,4 +26,4 @@ try:
             credits.load_screen(authors, terminal)
 
 except KeyboardInterrupt:
-    pass
+    print(terminal.clear)
