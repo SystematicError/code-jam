@@ -1,5 +1,6 @@
 from blessed import Terminal
 
+from ..art import BANNER
 from ..border import draw_boundary
 
 
@@ -14,17 +15,46 @@ def print_options(selection: int, options: list, terminal: Terminal) -> None:
     """
     print(terminal.clear, end="")
     draw_boundary(terminal)
-    print(terminal.move_y(terminal.height // 2 - len(options) // 2), end="")
+
+    print(
+        terminal.move_y(
+            (terminal.height - len(BANNER.split("\n")) - len(options) - 1) // 2
+        ),
+        end="",
+    )
+
+    for line in BANNER.split("\n"):
+        print(terminal.move_right(2), end="")
+        print(line)
+
+    print()
 
     for idx, option in enumerate(options):
+        print(
+            terminal.move_right(2), end=""
+        )  # Move 2 right to not interfere with border
 
-        # Move the menu two chars to the side to not interfere with the border
-        print(terminal.move_right(2), end="")
+        if option == "Quit" and idx != selection:
+            print(terminal.red + "Quit" + terminal.normal)
 
-        if idx == selection:
-            print(terminal.black + terminal.on_white + option + terminal.normal)
+        elif option == "Quit" and idx == selection:
+            print(terminal.black + terminal.on_red + "Quit" + terminal.normal)
+
+        elif idx == selection:
+            print(terminal.black + terminal.on_green + option + terminal.normal)
+
         else:
-            print(option)
+            print(terminal.green + option + terminal.normal)
+
+    print(
+        terminal.move(terminal.height - 3, terminal.width - 29)
+        + f"Use {terminal.white_bold}UP{terminal.normal} and {terminal.white_bold}DOWN{terminal.normal} to navigate"
+    )
+
+    print(
+        terminal.move(terminal.height - 4, terminal.width - 23)
+        + f"Press {terminal.white_bold}ENTER{terminal.normal} to select"
+    )
 
 
 def get_selection(options: list, terminal: Terminal) -> int:

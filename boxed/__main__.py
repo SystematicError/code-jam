@@ -3,7 +3,7 @@ from blessed import Terminal
 from .screens import credits, main_menu
 
 terminal = Terminal()
-menu_options = ["Play", "How to play", "Credits"]
+menu_options = ["Play", "How to play", "Credits", "Quit"]
 
 authors = {"Aaris-Kazi": "https://github.com/Aaris-Kazi",
            "Abhishek10351": "https://github.com/Abhishek10351",
@@ -24,6 +24,9 @@ try:
 
         elif action == 2:    # Credits
             credits.load_screen(authors, terminal)
+
+        elif action == 3:
+            raise KeyboardInterrupt()
 
 except KeyboardInterrupt:
     print(terminal.clear)
