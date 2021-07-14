@@ -18,8 +18,11 @@ def show_credits(authors: list, terminal: Terminal) -> None:
         for author in authors:
             print(terminal.move_right(2), end="")
             print(
-                terminal.white_bold + author + terminal.normal + " - " + authors[author]
-            )
+                terminal.link(
+                    authors[author],
+                    terminal.white_bold + author + terminal.normal + " - " + authors[author]
+                )
+            )    # Not all terminals support links so it also prints the url next to the author
 
         print(
             terminal.move(terminal.height - 3, terminal.width - 20)
