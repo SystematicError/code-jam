@@ -53,8 +53,11 @@ def get_selection(options: list, terminal: Terminal) -> int:
                 # Resize border if the terminal size gets changed
                 if (terminal.width, terminal.height) != terminal_size:
                     print(terminal.clear)
-                    draw_boundary(terminal)
+                    
+                    # Draw the content first to avoid content overflow
                     print_options(selection, options, terminal)
+                    draw_boundary(terminal)
+                    
                     terminal_size = terminal.width, terminal.height
 
                 if key.name == "KEY_UP":
