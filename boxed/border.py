@@ -1,5 +1,7 @@
 from blessed import Terminal
 
+from boxed.constants import WBorder
+
 
 def draw_boundary(terminal: Terminal) -> None:
     """
@@ -8,31 +10,24 @@ def draw_boundary(terminal: Terminal) -> None:
     Args:
         terminal (Terminal): A blessed.Terminal object.
     """
-    VERTICAL_EDGE = "║"
-    HORIZONTAL_EDGE = "═"
-    TOP_LEFT_CORNER = "╔"
-    TOP_RIGHT_CORNER = "╗"
-    BOTTOM_LEFT_CORNER = "╚"
-    BOTTOM_RIGHT_CORNER = "╝"
-
     # Upper edge
-    print(terminal.move_xy(0, 0), HORIZONTAL_EDGE * (terminal.width - 1))
+    print(terminal.move_xy(0, 0), WBorder.HORIZONTAL * (terminal.width - 1))
 
     # Left and Right edges
     for row in range(terminal.height - 2):
-        print(VERTICAL_EDGE, terminal.move_right(terminal.width - 4), VERTICAL_EDGE)
+        print(WBorder.VERTICAL, terminal.move_right(terminal.width - 4), WBorder.VERTICAL)
 
     # Bottom edge
-    print(terminal.move_xy(0, terminal.height - 2), HORIZONTAL_EDGE * (terminal.width - 1))
+    print(terminal.move_xy(0, terminal.height - 2), WBorder.HORIZONTAL * (terminal.width - 1))
 
     # Top left corner
-    print(terminal.move_xy(0, 0) + TOP_LEFT_CORNER)
+    print(terminal.move_xy(0, 0) + WBorder.DOWN_AND_RIGHT)
 
     # Top right corner
-    print(terminal.move_xy(terminal.width - 1, 0) + TOP_RIGHT_CORNER)
+    print(terminal.move_xy(terminal.width - 1, 0) + WBorder.DOWN_AND_LEFT)
 
     # Bottom left corner
-    print(terminal.move_xy(0, terminal.height - 2) + BOTTOM_LEFT_CORNER)
+    print(terminal.move_xy(0, terminal.height - 2) + WBorder.UP_AND_RIGHT)
 
     # Bottom right corner
-    print(terminal.move_xy(terminal.width - 1, terminal.height - 2) + BOTTOM_RIGHT_CORNER)
+    print(terminal.move_xy(terminal.width - 1, terminal.height - 2) + WBorder.UP_AND_LEFT)

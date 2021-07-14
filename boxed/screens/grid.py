@@ -1,0 +1,283 @@
+import collections.abc
+import enum
+import itertools
+import typing
+
+from blessed import Terminal
+
+from boxed.border import draw_boundary
+from boxed.constants import WBorder
+
+WIDTH_MULTIPLIER = 3
+
+
+class Direction(enum.IntEnum):  # noqa: D101
+    UP = 0
+    RIGHT = 1
+    DOWN = 2
+    LEFT = 3
+
+
+class GridDimensions(typing.NamedTuple):
+    """Hold data about the dimensions of a grid."""
+
+    cell_size: int
+    width: int
+    height: int
+
+    @property
+    def char_height(self) -> int:
+        """Character height of the grid."""
+        return (self.cell_size + 1) * self.height + 1
+
+    @property
+    def char_width(self) -> int:
+        """Character width of the grid."""
+        return (self.cell_size * WIDTH_MULTIPLIER + 1) * self.width + 1
+
+
+class CellOpenings:
+    """Provide an interface for openings of a cell with the ability to rotate them and check for their presence."""
+
+    def __init__(self):
+        self._openings = collections.deque((False, False, False, False))
+
+    def reverse_opening(self, opening: Direction) -> None:
+        """Reverse the current state of `opening`."""
+        self._openings[opening] = not self._openings[opening]
+
+    def rotate(self, n: int = 1) -> None:
+        """Rotate the openings by `n` rotations clockwise."""
+        self._openings.rotate(n)
+
+    def __contains__(self, item: Direction):
+        return self._openings[item]
+
+    def __repr__(self):
+        return "".join((
+            "<CellOpenings ",
+            ", ".join(f"{dir_.name}={self._openings[dir_]}" for dir_ in Direction),
+            ">"
+        ))
+
+
+class Cell:
+    """Manage a single cell in a grid defined by `grid_dimensions`."""
+
+    def __init__(self, x_pos: int, y_pos: int, grid_dimensions: GridDimensions, terminal: Terminal):
+        self.size = grid_dimensions.cell_size
+        self.x_pos = x_pos
+        self.y_pos = y_pos
+        self.openings = CellOpenings()
+        self.rotatable = True
+
+        self._grid_dimensions = grid_dimensions
+        self._terminal = terminal
+
+    def generate_cell_lines(self) -> collections.abc.Iterable[str]:
+        """Create the text representation of the cell as individual lines."""
+        top_left, top_right, bottom_left, bottom_right = self.get_corners()
+        modifier_size = self.size * WIDTH_MULTIPLIER
+
+        yield "".join((
+            top_left,
+            WBorder.HORIZONTAL * (modifier_size // 2 - (1 - modifier_size % 2)),
+            self.get_edge_center(Direction.UP),
+            WBorder.HORIZONTAL * (modifier_size // 2),
+            top_right,
+        ))
+
+        for _ in range(self.size // 2 - (1 - modifier_size % 2)):
+            yield "".join((WBorder.VERTICAL, " " * modifier_size, WBorder.VERTICAL))
+
+        yield "".join((
+            self.get_edge_center(Direction.LEFT),
+            " " * modifier_size,
+            self.get_edge_center(Direction.RIGHT),
+        ))
+
+        for _ in range(self.size // 2):
+            yield "".join((WBorder.VERTICAL, " " * modifier_size, WBorder.VERTICAL))
+
+        yield "".join((
+            bottom_left,
+            WBorder.HORIZONTAL * (modifier_size // 2 - (1 - modifier_size % 2)),
+            self.get_edge_center(Direction.DOWN),
+            WBorder.HORIZONTAL * (modifier_size // 2),
+            bottom_right,
+        ))
+
+    def render(self, color_func: typing.Callable = lambda x: x) -> None:
+        """Render the cell at its position in the grid."""
+        x, y = self.get_cell_start()
+        for row, line in enumerate(self.generate_cell_lines()):
+            print(self._terminal.move_xy(x, y + row), end="")
+            print(color_func("".join(line)))
+
+    def get_cell_start(self) -> tuple[int, int]:
+        """Get the coordinates of the left corner of cell."""
+        x, y = grid_center_offset_coords(self._grid_dimensions, self._terminal)
+        x += (self._grid_dimensions.cell_size * WIDTH_MULTIPLIER * self.x_pos) + self.x_pos
+        y += (self._grid_dimensions.cell_size * self.y_pos) + self.y_pos
+        return x, y
+
+    def get_corners(self) -> tuple[WBorder, WBorder, WBorder, WBorder]:
+        """Get the corner borders of the cell."""
+        if self.x_pos == 0:
+            if self.y_pos == 0:
+                return (
+                    WBorder.DOWN_AND_RIGHT,
+                    WBorder.DOWN_AND_HORIZONTAL,
+                    WBorder.VERTICAL_AND_RIGHT,
+                    WBorder.VERTICAL_AND_HORIZONTAL,
+                )
+            elif self.y_pos == self._grid_dimensions.height - 1:
+                return (
+                    WBorder.VERTICAL_AND_RIGHT,
+                    WBorder.VERTICAL_AND_HORIZONTAL,
+                    WBorder.UP_AND_RIGHT,
+                    WBorder.UP_AND_HORIZONTAL,
+                )
+            else:
+                return (
+                    WBorder.VERTICAL_AND_RIGHT,
+                    WBorder.VERTICAL_AND_HORIZONTAL,
+                    WBorder.VERTICAL_AND_RIGHT,
+                    WBorder.VERTICAL_AND_HORIZONTAL,
+                )
+
+        elif self.x_pos == self._grid_dimensions.width - 1:
+            if self.y_pos == 0:
+                return (
+                    WBorder.DOWN_AND_HORIZONTAL,
+                    WBorder.DOWN_AND_LEFT,
+                    WBorder.VERTICAL_AND_HORIZONTAL,
+                    WBorder.VERTICAL_AND_LEFT,
+                )
+            elif self.y_pos == self._grid_dimensions.height - 1:
+                return (
+                    WBorder.VERTICAL_AND_HORIZONTAL,
+                    WBorder.VERTICAL_AND_LEFT,
+                    WBorder.UP_AND_HORIZONTAL,
+                    WBorder.UP_AND_LEFT,
+                )
+            else:
+                return (
+                    WBorder.VERTICAL_AND_HORIZONTAL,
+                    WBorder.VERTICAL_AND_LEFT,
+                    WBorder.VERTICAL_AND_HORIZONTAL,
+                    WBorder.VERTICAL_AND_LEFT,
+                )
+        else:
+            if self.y_pos == 0:
+                return (
+                    WBorder.DOWN_AND_HORIZONTAL,
+                    WBorder.DOWN_AND_HORIZONTAL,
+                    WBorder.VERTICAL_AND_HORIZONTAL,
+                    WBorder.VERTICAL_AND_HORIZONTAL,
+                )
+            elif self.y_pos == self._grid_dimensions.height - 1:
+                return (
+                    WBorder.VERTICAL_AND_HORIZONTAL,
+                    WBorder.VERTICAL_AND_HORIZONTAL,
+                    WBorder.UP_AND_HORIZONTAL,
+                    WBorder.UP_AND_HORIZONTAL,
+                )
+            else:
+                return (
+                    WBorder.VERTICAL_AND_HORIZONTAL,
+                    WBorder.VERTICAL_AND_HORIZONTAL,
+                    WBorder.VERTICAL_AND_HORIZONTAL,
+                    WBorder.VERTICAL_AND_HORIZONTAL,
+                )
+
+    def get_edge_center(self, edge_loc: Direction) -> WBorder:
+        """Get the required center piece of an edge with the openings defined by `self.openings`."""
+        if edge_loc is Direction.UP or edge_loc is Direction.DOWN:
+            return WBorder.VERTICAL_AND_HORIZONTAL if edge_loc in self.openings else WBorder.HORIZONTAL
+        else:
+            return WBorder.VERTICAL_AND_HORIZONTAL if edge_loc in self.openings else WBorder.VERTICAL
+
+    def __repr__(self):
+        return f"<Cell x={self.x_pos}, y={self.y_pos}, size={self.size}, openings={self.openings}>"
+
+
+class Grid:
+    """A grid of `Cell`s defined by `dimensions`."""
+
+    def __init__(self, dimensions: GridDimensions, terminal: Terminal):
+        self.dimensions = dimensions
+        self.cells = []
+        self._terminal = terminal
+
+        for y_pos, x_pos, in itertools.product(range(dimensions.height), range(dimensions.width)):
+            self.cells.append(Cell(x_pos, y_pos, dimensions, terminal))
+
+    def print_grid(self) -> None:
+        """Print all cells in a centered grid."""
+        error_string = "Centered grid can't fit into terminal"
+        assert self.dimensions.char_width < self._terminal.width - 2, error_string  # noqa: S101
+        assert self.dimensions.char_height < self._terminal.height - 2, error_string  # noqa: S101
+
+        for cell in self.cells:
+            cell.render()
+
+
+def grid_center_offset_coords(grid_dimensions: GridDimensions, terminal: Terminal) -> tuple[int, int]:
+    """Get coordinates of the top left corner of a centered grid with `grid_dimensions`."""
+    x = terminal.width // 2 - grid_dimensions.char_width // 2
+    y = terminal.height // 2 - grid_dimensions.char_height // 2
+    return x, y
+
+
+def load_screen(cell_size: int, width: int, height: int, terminal: Terminal) -> None:
+    """Callback for loading a screen."""
+    grid = Grid(GridDimensions(cell_size, width, height), terminal)
+    terminal_size = 0, 0
+
+    while True:
+        with terminal.cbreak():
+            key = terminal.inkey(timeout=0.1)
+            # Resize border if the terminal size gets changed
+            if (terminal.width, terminal.height) != terminal_size:
+                print(terminal.clear, end="")
+                draw_boundary(terminal)
+                grid.print_grid()
+                terminal_size = terminal.width, terminal.height
+
+            if key == "b":
+                break
+
+
+if __name__ == '__main__':
+    # Grid demo
+    terminal = Terminal()
+    try:
+        import random
+        import time
+
+        for cell_size in range(1, 6):
+            print(terminal.clear, end="")
+            grid = Grid(GridDimensions(cell_size, 6, 6), terminal)
+            grid.print_grid()
+
+            cell = random.choice(grid.cells)
+            print(terminal.move_xy(0, 0), end="")
+            print(cell, end="    ")
+            cell.openings.reverse_opening(Direction.UP)
+            cell.openings.reverse_opening(Direction.DOWN)
+            cell.render()
+            for _ in range(2):
+                cell.render(terminal.black_on_white)
+                time.sleep(0.3)
+                cell.render(terminal.white_on_black)
+                time.sleep(0.3)
+
+            for _ in range(5):
+                cell.openings.rotate()
+                print(terminal.move_xy(0, 0), end="")
+                print(cell, end="    ")
+                cell.render()
+                time.sleep(0.5)
+    finally:
+        print(terminal.move_xy(0, terminal.height), end="")

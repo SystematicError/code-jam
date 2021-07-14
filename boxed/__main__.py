@@ -1,6 +1,6 @@
 from blessed import Terminal
 
-from .screens import credits, main_menu
+from .screens import credits, grid, main_menu
 
 terminal = Terminal()
 menu_options = ["Play", "How to play", "Credits", "Quit"]
@@ -17,7 +17,7 @@ try:
         action = main_menu.load_screen(menu_options, terminal)
 
         if action == 0:  # Level selector
-            break
+            grid.load_screen(cell_size=4, width=5, height=5, terminal=terminal)
 
         elif action == 1:  # Tutorial
             pass
