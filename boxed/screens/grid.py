@@ -222,8 +222,18 @@ class Grid:
         assert self.dimensions.char_width < boxed.terminal.width - 2, error_string  # noqa: S101
         assert self.dimensions.char_height < boxed.terminal.height - 2, error_string  # noqa: S101
 
-        for cell in self.cells:
-            cell.render()
+        lines = []
+        x, y = grid_center_offset_coords(self.dimensions)
+        for cell_row in range(self.dimensions.height):
+            row_cells = self.cells[cell_row * self.dimensions.width:(cell_row + 1) * self.dimensions.width]
+            for line_pos, iterables in enumerate(zip(*(cell.generate_cell_lines() for cell in row_cells))):
+                lines.append(
+                    # Move cursor to start of line.
+                    boxed.terminal.move_xy(x, y + line_pos + cell_row * (self.dimensions.cell_size+1))
+                    # After every cell, move one character left to overlap edges.
+                    + boxed.terminal.move_left.join(iterables)
+                )
+        print("\n".join(lines))
 
 
 def grid_center_offset_coords(grid_dimensions: GridDimensions) -> tuple[int, int]:
