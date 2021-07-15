@@ -1,26 +1,30 @@
-import msvcrt
 import time
 
 import blessed
 
 from .screens import credits, main_menu
 
+try:
+    import msvcrt
 
-# Add a small sleep to blessed's windows terminal kbhit to prevent high CPU usage from the tight loop
-def _kbhit_patch(self, timeout=None):  # noqa: ANN
-    end = time.time() + (timeout or 0)
-    while True:
-        if msvcrt.kbhit():
-            return True
+    # Add a small sleep to blessed's windows terminal kbhit to prevent high CPU usage from the tight loop
+    def _kbhit_patch(self, timeout=None):  # noqa: ANN
+        end = time.time() + (timeout or 0)
+        while True:
+            if msvcrt.kbhit():
+                return True
 
-        if timeout is not None and end < time.time():
-            break
-        time.sleep(0.01)
+            if timeout is not None and end < time.time():
+                break
+            time.sleep(0.01)
 
-    return False
+        return False
 
+    blessed.win_terminal.Terminal.kbhit = _kbhit_patch
 
-blessed.win_terminal.Terminal.kbhit = _kbhit_patch
+except ModuleNotFoundError:
+    pass
+
 
 terminal = blessed.Terminal()
 menu_options = ["Play", "How to play", "Credits", "Quit"]
