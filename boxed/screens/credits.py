@@ -3,7 +3,7 @@ import boxed
 from ..border import draw_boundary
 
 
-def print_authors(authors: list) -> None:
+def print_authors(authors: dict[str, str]) -> None:
     """Prints a list of authors with links from a dictionary of authors and links."""
     print(boxed.terminal.move_y(boxed.terminal.height // 2 - len(authors) // 2), end="")
 
@@ -23,12 +23,12 @@ def print_authors(authors: list) -> None:
     draw_boundary()
 
 
-def show_credits(authors: list) -> None:
+def show_credits(authors: dict[str, str]) -> None:
     """
     Displays a list of authors who contributed to this project.
 
     Args:
-        authors (list): A dictionary containing the author and their github page url
+        authors (dict): A dictionary containing the author and their github page url
     """
     with boxed.terminal.fullscreen() and boxed.terminal.hidden_cursor():
         print(boxed.terminal.clear)
@@ -51,6 +51,6 @@ def show_credits(authors: list) -> None:
                     break
 
 
-def load_screen(authors: list) -> None:
+def load_screen(authors: dict[str, str]) -> None:
     """Callback for loading a screen."""
     show_credits(authors)
