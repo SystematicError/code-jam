@@ -12,7 +12,11 @@ def print_authors(authors: list, terminal: Terminal) -> None:
         print(
             terminal.link(
                 authors[author],
-                terminal.white_bold + author + terminal.normal + " - " + authors[author]
+                terminal.white_bold
+                + author
+                + terminal.normal
+                + " - "
+                + authors[author],
             )
         )  # Not all terminals support links so it also prints the url next to the author
 

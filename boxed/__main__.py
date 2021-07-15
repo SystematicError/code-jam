@@ -5,12 +5,14 @@ from .screens import credits, main_menu
 terminal = Terminal()
 menu_options = ["Play", "How to play", "Credits", "Quit"]
 
-authors = {"Aaris-Kazi": "https://github.com/Aaris-Kazi",
-           "Abhishek10351": "https://github.com/Abhishek10351",
-           "DrokoDomi": "https://github.com/DrokoDomi",
-           "Numerlor": "https://github.com/Numerlor",
-           "ShanTen": "https://github.com/ShanTen",
-           "SystematicError": "https://github.com/SystematicError"}
+authors = {
+    "Aaris-Kazi": "https://github.com/Aaris-Kazi",
+    "Abhishek10351": "https://github.com/Abhishek10351",
+    "DrokoDomi": "https://github.com/DrokoDomi",
+    "Numerlor": "https://github.com/Numerlor",
+    "ShanTen": "https://github.com/ShanTen",
+    "SystematicError": "https://github.com/SystematicError",
+}
 
 try:
     while True:

@@ -23,7 +23,9 @@ def draw_boundary(terminal: Terminal) -> None:
         print(VERTICAL_EDGE, terminal.move_right(terminal.width - 4), VERTICAL_EDGE)
 
     # Bottom edge
-    print(terminal.move_xy(0, terminal.height - 2), HORIZONTAL_EDGE * (terminal.width - 1))
+    print(
+        terminal.move_xy(0, terminal.height - 2), HORIZONTAL_EDGE * (terminal.width - 1)
+    )
 
     # Top left corner
     print(terminal.move_xy(0, 0) + TOP_LEFT_CORNER)
@@ -35,4 +37,6 @@ def draw_boundary(terminal: Terminal) -> None:
     print(terminal.move_xy(0, terminal.height - 2) + BOTTOM_LEFT_CORNER)
 
     # Bottom right corner
-    print(terminal.move_xy(terminal.width - 1, terminal.height - 2) + BOTTOM_RIGHT_CORNER)
+    print(
+        terminal.move_xy(terminal.width - 1, terminal.height - 2) + BOTTOM_RIGHT_CORNER
+    )
