@@ -16,6 +16,7 @@ license = "MIT"
 python = "3.9.*"
 
 blessed = "~1.18.1"
+playsound = "~1.2.2"
 
 [tool.poetry.dev-dependencies]
 # Base tools
