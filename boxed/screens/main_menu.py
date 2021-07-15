@@ -99,7 +99,7 @@ def get_selection(options: list, terminal: Terminal) -> int:
                     selection = (selection - 1) % len(options)
                     print_options(selection, options, terminal)
                     playsound('boxed/music/up-down.wav')
-                
+                # This is where sounds come
                 elif 0xFF == ord("q"):
                     # selection = (selection - 1) % len(options)
                     print('Mute')
@@ -108,7 +108,7 @@ def get_selection(options: list, terminal: Terminal) -> int:
                     selection = (selection + 1) % len(options)
                     print_options(selection, options, terminal)
                     playsound('boxed/music/up-down.wav')
-
+                # This is where sounds come
                 elif key.name == "KEY_ENTER":
                     return selection
 
