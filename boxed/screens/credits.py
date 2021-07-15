@@ -29,7 +29,6 @@ def show_credits(authors: list) -> None:
 
     Args:
         authors (list): A dictionary containing the author and their github page url
-        terminal (Terminal): A blessed.Terminal object
     """
     with boxed.terminal.fullscreen() and boxed.terminal.hidden_cursor():
         print(boxed.terminal.clear)

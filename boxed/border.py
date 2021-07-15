@@ -3,12 +3,7 @@ from boxed.constants import WBorder
 
 
 def draw_boundary() -> None:
-    """
-    Prints a border around the app.
-
-    Args:
-        terminal (Terminal): A blessed.Terminal object.
-    """
+    """Prints a border around the app."""
     # Upper edge
     print(boxed.terminal.move_xy(0, 0), WBorder.HORIZONTAL * (boxed.terminal.width - 1))
 

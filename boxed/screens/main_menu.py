@@ -11,7 +11,6 @@ def print_options(selection: int, options: list) -> None:
     Args:
         selection (int): A zero indexed integer representing the current selection
         options (list): The list of options to print
-        terminal (Terminal): A blessed.Terminal object
     """
     print(boxed.terminal.clear, end="")
     draw_boundary()
@@ -64,7 +63,6 @@ def get_selection(options: list) -> int:
 
     Args:
         options (list): List of options for the user choose from
-        terminal (Terminal): A blessed.Terminal object
 
     Returns:
         int: A zero indexed integer representing the chosen selection
