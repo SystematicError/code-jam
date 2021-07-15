@@ -1,8 +1,9 @@
 from blessed import Terminal
+from playsound import playsound
 
 from ..art import BANNER
 from ..border import draw_boundary
-from playsound import playsound
+
 
 def print_options(selection: int, options: list, terminal: Terminal) -> None:
     """
@@ -45,11 +46,6 @@ def print_options(selection: int, options: list, terminal: Terminal) -> None:
 
         else:
             print(terminal.green + option + terminal.normal)
-
-    print(
-        terminal.move(terminal.height - 5, terminal.width - 27)
-        + f"Press {terminal.white_bold}M{terminal.white_bold} to{terminal.normal} mute{terminal.normal} OR {terminal.white_bold}unmute{terminal.normal}"
-    )
 
     print(
         terminal.move(terminal.height - 3, terminal.width - 29)
@@ -98,17 +94,13 @@ def get_selection(options: list, terminal: Terminal) -> int:
                 if key.name == "KEY_UP":
                     selection = (selection - 1) % len(options)
                     print_options(selection, options, terminal)
-                    playsound('boxed/music/up-down.wav')
-                # This is where sounds come
-                elif 0xFF == ord("q"):
-                    # selection = (selection - 1) % len(options)
-                    print('Mute')
+                    playsound("boxed/music/up-down.wav")
 
                 elif key.name == "KEY_DOWN":
                     selection = (selection + 1) % len(options)
                     print_options(selection, options, terminal)
-                    playsound('boxed/music/up-down.wav')
-                # This is where sounds come
+                    playsound("boxed/music/up-down.wav")
+
                 elif key.name == "KEY_ENTER":
                     return selection
 
