@@ -43,6 +43,10 @@ class CellOpenings:
     def __init__(self):
         self._openings = collections.deque((False, False, False, False))
 
+    def reset_openings(self) -> None:
+        """Reset all openings to the closed state."""
+        self._openings = collections.deque((False, False, False, False))
+
     def reverse_opening(self, opening: Direction) -> None:
         """Reverse the current state of `opening`."""
         self._openings[opening] = not self._openings[opening]
