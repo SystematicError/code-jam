@@ -1,9 +1,6 @@
 import collections.abc
 import enum
-import itertools
 import typing
-
-from blessed import Terminal
 
 import boxed
 from boxed.border import draw_boundary
@@ -213,8 +210,11 @@ class Grid:
         self.dimensions = dimensions
         self.cells = []
 
-        for y_pos, x_pos, in itertools.product(range(dimensions.height), range(dimensions.width)):
-            self.cells.append(Cell(x_pos, y_pos, dimensions))
+        for y_pos in range(dimensions.height):
+            row = []
+            for x_pos in range(dimensions.width):
+                row.append(Cell(x_pos, y_pos, dimensions))
+            self.cells.append(row)
 
     def print_grid(self) -> None:
         """Print all cells in a centered grid."""
@@ -224,12 +224,11 @@ class Grid:
 
         lines = []
         x, y = grid_center_offset_coords(self.dimensions)
-        for cell_row in range(self.dimensions.height):
-            row_cells = self.cells[cell_row * self.dimensions.width:(cell_row + 1) * self.dimensions.width]
-            for line_pos, iterables in enumerate(zip(*(cell.generate_cell_lines() for cell in row_cells))):
+        for row, cells in enumerate(self.cells):
+            for line_pos, iterables in enumerate(zip(*(cell.generate_cell_lines() for cell in cells))):
                 lines.append(
                     # Move cursor to start of line.
-                    boxed.terminal.move_xy(x, y + line_pos + cell_row * (self.dimensions.cell_size+1))
+                    boxed.terminal.move_xy(x, y + line_pos + row * (self.dimensions.cell_size+1))
                     # After every cell, move one character left to overlap edges.
                     + boxed.terminal.move_left.join(iterables)
                 )
@@ -260,38 +259,3 @@ def load_screen(cell_size: int, width: int, height: int) -> None:
 
             if key == "b":
                 break
-
-
-if __name__ == '__main__':
-    # Grid demo
-    terminal = Terminal()
-    boxed.terminal = terminal
-    try:
-        import random
-        import time
-
-        for cell_size in range(1, 6):
-            print(boxed.terminal.clear, end="")
-            grid = Grid(GridDimensions(cell_size, 6, 6))
-            grid.print_grid()
-
-            cell = random.choice(grid.cells)
-            print(boxed.terminal.move_xy(0, 0), end="")
-            print(cell, end="    ")
-            cell.openings.reverse_opening(Direction.UP)
-            cell.openings.reverse_opening(Direction.DOWN)
-            cell.render()
-            for _ in range(2):
-                cell.render(boxed.terminal.black_on_white)
-                time.sleep(0.3)
-                cell.render(boxed.terminal.white_on_black)
-                time.sleep(0.3)
-
-            for _ in range(5):
-                cell.openings.rotate()
-                print(boxed.terminal.move_xy(0, 0), end="")
-                print(cell, end="    ")
-                cell.render()
-                time.sleep(0.5)
-    finally:
-        print(boxed.terminal.move_xy(0, boxed.terminal.height), end="")
