@@ -1,0 +1,31 @@
+[What is the game?]
+Boxed is a recursive puzzle game, all within your terminal!
+
+The game starts off fairly simple...
+
+You have a grid of cells and you have two marked cells (marked in red) on your grid.
+
+Each cell consists of anywhere between 1-4 openings and so every time you rotate a cell, you change the positions of the openings.
+Simple right?
+
+Now here comes the fun part, 
+When you twist cells you can make connections with the adjacent cells,
+you can also rotate that cell you just connected to make another connection with it's adjacent cell!
+You keep doing this until you figure out a (sometimes crazy!) pattern to the other highlighted cell!
+
+In essence, all you have to do it create a path between 2 points by rotating cells.
+
+With automagically generated levels to the game, enhance your inner path finding algorithm with boxed.py!
+
+
+[How do I play the game?] 
+You can use "r" to rotate a cell
+and arrow keys or "WASD" to select the cell you wanna rotate!
+
+
+[Hints]
+Simply cant figure out a level? No problem! //Pranav said scratch this
+--> use `some key bind` to turn on hints!
+
+Unable to focus intensly with the sounds? No problemo! //Pranav said scratch this
+--> use `some key bind` to turn off game sounds!
