@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import collections.abc
 import enum
 import typing
@@ -14,6 +16,9 @@ class Direction(enum.IntEnum):  # noqa: D101
     RIGHT = 1
     DOWN = 2
     LEFT = 3
+
+    def opposite(self):
+        return Direction((self-2) % 4)
 
 
 class GridDimensions(typing.NamedTuple):
@@ -39,6 +44,7 @@ class CellOpenings:
 
     def __init__(self):
         self._openings = collections.deque((False, False, False, False))
+        self.rotatable = True
 
     def reset_openings(self) -> None:
         """Reset all openings to the closed state."""
@@ -46,11 +52,13 @@ class CellOpenings:
 
     def reverse_opening(self, opening: Direction) -> None:
         """Reverse the current state of `opening`."""
-        self._openings[opening] = not self._openings[opening]
+        if self.rotatable:
+            self._openings[opening] = not self._openings[opening]
 
     def rotate(self, n: int = 1) -> None:
         """Rotate the openings by `n` rotations clockwise."""
-        self._openings.rotate(n)
+        if self.rotatable:
+            self._openings.rotate(n)
 
     def __contains__(self, item: Direction):
         return self._openings[item]
@@ -66,14 +74,12 @@ class CellOpenings:
 class Cell:
     """Manage a single cell in a grid defined by `grid_dimensions`."""
 
-    def __init__(self, x_pos: int, y_pos: int, grid_dimensions: GridDimensions):
-        self.size = grid_dimensions.cell_size
+    def __init__(self, x_pos: int, y_pos: int, grid: Grid):
+        self.size = grid.dimensions.cell_size
         self.x_pos = x_pos
         self.y_pos = y_pos
         self.openings = CellOpenings()
-        self.rotatable = True
-
-        self._grid_dimensions = grid_dimensions
+        self._grid = grid
 
     def generate_cell_lines(self) -> collections.abc.Iterable[str]:
         """Create the text representation of the cell as individual lines."""
@@ -117,9 +123,9 @@ class Cell:
 
     def get_cell_start(self) -> tuple[int, int]:
         """Get the coordinates of the left corner of cell."""
-        x, y = grid_center_offset_coords(self._grid_dimensions)
-        x += (self._grid_dimensions.cell_size * WIDTH_MULTIPLIER * self.x_pos) + self.x_pos
-        y += (self._grid_dimensions.cell_size * self.y_pos) + self.y_pos
+        x, y = grid_center_offset_coords(self._grid.dimensions)
+        x += (self._grid.dimensions.cell_size * WIDTH_MULTIPLIER * self.x_pos) + self.x_pos
+        y += (self._grid.dimensions.cell_size * self.y_pos) + self.y_pos
         return x, y
 
     def get_corners(self) -> tuple[WBorder, WBorder, WBorder, WBorder]:
@@ -132,7 +138,7 @@ class Cell:
                     WBorder.VERTICAL_AND_RIGHT,
                     WBorder.VERTICAL_AND_HORIZONTAL,
                 )
-            elif self.y_pos == self._grid_dimensions.height - 1:
+            elif self.y_pos == self._grid.dimensions.height - 1:
                 return (
                     WBorder.VERTICAL_AND_RIGHT,
                     WBorder.VERTICAL_AND_HORIZONTAL,
@@ -147,7 +153,7 @@ class Cell:
                     WBorder.VERTICAL_AND_HORIZONTAL,
                 )
 
-        elif self.x_pos == self._grid_dimensions.width - 1:
+        elif self.x_pos == self._grid.dimensions.width - 1:
             if self.y_pos == 0:
                 return (
                     WBorder.DOWN_AND_HORIZONTAL,
@@ -155,7 +161,7 @@ class Cell:
                     WBorder.VERTICAL_AND_HORIZONTAL,
                     WBorder.VERTICAL_AND_LEFT,
                 )
-            elif self.y_pos == self._grid_dimensions.height - 1:
+            elif self.y_pos == self._grid.dimensions.height - 1:
                 return (
                     WBorder.VERTICAL_AND_HORIZONTAL,
                     WBorder.VERTICAL_AND_LEFT,
@@ -177,7 +183,7 @@ class Cell:
                     WBorder.VERTICAL_AND_HORIZONTAL,
                     WBorder.VERTICAL_AND_HORIZONTAL,
                 )
-            elif self.y_pos == self._grid_dimensions.height - 1:
+            elif self.y_pos == self._grid.dimensions.height - 1:
                 return (
                     WBorder.VERTICAL_AND_HORIZONTAL,
                     WBorder.VERTICAL_AND_HORIZONTAL,
@@ -194,10 +200,49 @@ class Cell:
 
     def get_edge_center(self, edge_loc: Direction) -> WBorder:
         """Get the required center piece of an edge with the openings defined by `self.openings`."""
-        if edge_loc is Direction.UP or edge_loc is Direction.DOWN:
-            return WBorder.VERTICAL_AND_HORIZONTAL if edge_loc in self.openings else WBorder.HORIZONTAL
+        if edge_loc is Direction.UP:
+            neighbour = self._grid.cell_in_direction(self,edge_loc)
+            if edge_loc in self.openings and (neighbour is None or self._grid.cells_connected(self, neighbour)):
+                return WBorder.VERTICAL_AND_HORIZONTAL
+            elif edge_loc in self.openings:
+                return WBorder.DOWN_AND_HORIZONTAL
+            elif neighbour is not None and edge_loc.opposite() in neighbour.openings:
+                return WBorder.UP_AND_HORIZONTAL
+            else:
+                return WBorder.HORIZONTAL
+
+        elif edge_loc is Direction.DOWN:
+            neighbour = self._grid.cell_in_direction(self,edge_loc)
+            if edge_loc in self.openings and (neighbour is None or self._grid.cells_connected(self, neighbour)):
+                return WBorder.VERTICAL_AND_HORIZONTAL
+            elif edge_loc in self.openings:
+                return WBorder.UP_AND_HORIZONTAL
+            elif neighbour is not None and edge_loc.opposite() in neighbour.openings:
+                return WBorder.DOWN_AND_HORIZONTAL
+            else:
+                return WBorder.HORIZONTAL
+
+        elif edge_loc is Direction.LEFT:
+            neighbour = self._grid.cell_in_direction(self,edge_loc)
+            if edge_loc in self.openings and (neighbour is None or self._grid.cells_connected(self, neighbour)):
+                return WBorder.VERTICAL_AND_HORIZONTAL
+            elif edge_loc in self.openings:
+                return WBorder.VERTICAL_AND_RIGHT
+            elif neighbour is not None and edge_loc.opposite() in neighbour.openings:
+                return WBorder.VERTICAL_AND_LEFT
+            else:
+                return WBorder.VERTICAL
+
         else:
-            return WBorder.VERTICAL_AND_HORIZONTAL if edge_loc in self.openings else WBorder.VERTICAL
+            neighbour = self._grid.cell_in_direction(self,edge_loc)
+            if edge_loc in self.openings and (neighbour is None or self._grid.cells_connected(self, neighbour)):
+                return WBorder.VERTICAL_AND_HORIZONTAL
+            elif edge_loc in self.openings:
+                return WBorder.VERTICAL_AND_LEFT
+            elif neighbour is not None and edge_loc.opposite() in neighbour.openings:
+                return WBorder.VERTICAL_AND_RIGHT
+            else:
+                return WBorder.VERTICAL
 
     def __repr__(self):
         return f"<Cell x={self.x_pos}, y={self.y_pos}, size={self.size}, openings={self.openings}>"
@@ -213,8 +258,36 @@ class Grid:
         for y_pos in range(dimensions.height):
             row = []
             for x_pos in range(dimensions.width):
-                row.append(Cell(x_pos, y_pos, dimensions))
+                row.append(Cell(x_pos, y_pos, self))
             self.cells.append(row)
+
+    @staticmethod
+    def get_direction_between(cell1, cell2: Cell) -> Direction:
+        if cell1.y_pos == cell2.y_pos:
+            if cell1.x_pos < cell2.x_pos:
+                return Direction.RIGHT
+            else:
+                return Direction.LEFT
+        else:
+            if cell1.y_pos < cell2.y_pos:
+                return Direction.DOWN
+            else:
+                return Direction.UP
+
+    @staticmethod
+    def distance_between(cell1: Cell, cell2: Cell) -> int:
+        return abs(cell1.x_pos - cell2.x_pos) + abs(cell1.y_pos - cell2.y_pos)
+
+    def cells_connected(self, cell1: Cell, cell2: Cell) -> bool:
+        direction = self.get_direction_between(cell1, cell2)
+        if direction is Direction.UP:
+            return Direction.UP in cell1.openings and Direction.DOWN in cell2.openings
+        elif direction is Direction.DOWN:
+            return Direction.DOWN in cell1.openings and Direction.UP in cell2.openings
+        elif direction is Direction.LEFT:
+            return Direction.LEFT in cell1.openings and Direction.RIGHT in cell2.openings
+        else:
+            return Direction.RIGHT in cell1.openings and Direction.LEFT in cell2.openings
 
     def print_grid(self) -> bool:
         """

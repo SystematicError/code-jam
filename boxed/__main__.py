@@ -3,7 +3,7 @@ import time
 import blessed
 
 import boxed
-from boxed.screens import credits, grid, main_menu
+from boxed.screens import credits, game, main_menu
 
 boxed.terminal = blessed.Terminal()
 try:
@@ -21,8 +21,6 @@ try:
             time.sleep(0.01)
 
         return False
-
-    blessed.win_terminal.Terminal.kbhit = _kbhit_patch
 
 except ModuleNotFoundError:
     pass
@@ -44,7 +42,7 @@ try:
         action = main_menu.load_screen(menu_options)
 
         if action == 0:  # Level selector
-            grid.load_screen(cell_size=4, width=5, height=5)
+            game.load_screen()
 
         elif action == 1:  # Tutorial
             pass
@@ -56,4 +54,5 @@ try:
             raise KeyboardInterrupt()
 
 except KeyboardInterrupt:
-    print(boxed.terminal.clear)
+    print(boxed.terminal.move_xy(0, boxed.terminal.height), end="")
+    raise
