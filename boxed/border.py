@@ -12,7 +12,10 @@ def draw_boundary() -> None:
         print(WBorder.VERTICAL, boxed.terminal.move_right(boxed.terminal.width - 4), WBorder.VERTICAL)
 
     # Bottom edge
-    print(boxed.terminal.move_xy(0, boxed.terminal.height - 2), WBorder.HORIZONTAL * (boxed.terminal.width - 1))
+    print(
+        boxed.terminal.move_xy(0, boxed.terminal.height - 2),
+        WBorder.HORIZONTAL * (boxed.terminal.width - 1)
+    )
 
     # Top left corner
     print(boxed.terminal.move_xy(0, 0) + WBorder.DOWN_AND_RIGHT)
@@ -24,4 +27,7 @@ def draw_boundary() -> None:
     print(boxed.terminal.move_xy(0, boxed.terminal.height - 2) + WBorder.UP_AND_RIGHT)
 
     # Bottom right corner
-    print(boxed.terminal.move_xy(boxed.terminal.width - 1, boxed.terminal.height - 2) + WBorder.UP_AND_LEFT)
+    print(
+        boxed.terminal.move_xy(boxed.terminal.width - 1, boxed.terminal.height - 2)
+        + WBorder.UP_AND_LEFT
+    )

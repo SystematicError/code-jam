@@ -1,7 +1,6 @@
 import boxed
-
-from ..art import BANNER
-from ..border import draw_boundary
+from boxed.art import BANNER
+from boxed.border import draw_boundary
 
 
 def print_options(selection: int, options: list) -> None:

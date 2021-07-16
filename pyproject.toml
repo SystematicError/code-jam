@@ -1,21 +1,24 @@
 [tool.poetry]
-name = "TODO_PLACEHOLDER"
-version = "0.0.1a"
-description = ""
+name = "Boxed"
+version = "0.0.1"
+description = "A recursive terminal based puzzle game."
 authors = [
-    "Numerlor",
-    "SystematicError",
-    "Abhishek10351",
-    "ShanTen",
-    "Aaris-Kazi",
-    "DrokoDomi",
-     ]
+    "Aaris-Kazi <aaris-kazi@users.noreply.github.com>",
+    "Abhishek10351 <abhishek10351@users.noreply.github.com>",
+    "DrokoDomi <drokodomi@users.noreply.github.com>",
+    "Numerlor <numerlor@users.noreply.github.com>",
+    "ShanTen <numerlor@users.noreply.github.com>",
+    "SystematicError <systematicerror@users.noreply.github.com>"
+]
 license = "MIT"
 
 [tool.poetry.dependencies]
 python = "3.9.*"
 
 blessed = "~1.18.1"
+playsound = "~1.2.2"
+vext = {version = "~0.7.6", platform = "linux"}
+"vext.gi" = {version = "~0.7.4", platform = "linux"}
 
 [tool.poetry.dev-dependencies]
 # Base tools
@@ -35,5 +38,6 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.isort]
+# Isort configuration
 multi_line_output=5
 known_first_party="boxed"

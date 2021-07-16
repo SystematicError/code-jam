@@ -1,6 +1,5 @@
 import boxed
-
-from ..border import draw_boundary
+from boxed.border import draw_boundary
 
 
 def print_authors(authors: dict[str, str]) -> None:
@@ -12,7 +11,11 @@ def print_authors(authors: dict[str, str]) -> None:
         print(
             boxed.terminal.link(
                 authors[author],
-                boxed.terminal.white_bold + author + boxed.terminal.normal + " - " + authors[author]
+                boxed.terminal.white_bold
+                + author
+                + boxed.terminal.normal
+                + " - "
+                + authors[author],
             )
         )  # Not all terminals support links so it also prints the url next to the author
 
