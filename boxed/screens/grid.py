@@ -225,6 +225,11 @@ class Grid:
 
         Return True if the grid was displayed, False otherwise.
         """
+        print(
+            boxed.terminal.move(boxed.terminal.height - 3, boxed.terminal.width - 26)
+            + f"Press {boxed.terminal.white_bold}S{boxed.terminal.normal} to stop the game"
+        )
+
         print(boxed.terminal.move_xy(boxed.terminal.width//2-18, boxed.terminal.height//2), end="")
 
         if self.dimensions.char_width > boxed.terminal.width - 2:
@@ -272,6 +277,7 @@ def load_screen(cell_size: int, width: int, height: int) -> None:
                     grid.print_grid()
                     terminal_size = boxed.terminal.width, boxed.terminal.height
 
-                if key == "b":
+                # Not B like the other menu's as this one makes you loose progress
+                if key == "s":
                     Thread(target=lambda: playsound("music/up-down.wav"), daemon=True).start()
                     break
