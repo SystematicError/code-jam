@@ -2,8 +2,10 @@ import time
 
 import blessed
 
-from boxed.screens import credits, main_menu
+import boxed
+from boxed.screens import credits, grid, main_menu
 
+boxed.terminal = blessed.Terminal()
 try:
     import msvcrt
 
@@ -26,7 +28,6 @@ except ModuleNotFoundError:
     pass
 
 
-terminal = blessed.Terminal()
 menu_options = ["Play", "How to play", "Credits", "Quit"]
 
 authors = {
@@ -40,19 +41,19 @@ authors = {
 
 try:
     while True:
-        action = main_menu.load_screen(menu_options, terminal)
+        action = main_menu.load_screen(menu_options)
 
         if action == 0:  # Level selector
-            break
+            grid.load_screen(cell_size=4, width=5, height=5)
 
         elif action == 1:  # Tutorial
             pass
 
         elif action == 2:  # Credits
-            credits.load_screen(authors, terminal)
+            credits.load_screen(authors)
 
         elif action == 3:
             raise KeyboardInterrupt()
 
 except KeyboardInterrupt:
-    print(terminal.clear)
+    print(boxed.terminal.clear)

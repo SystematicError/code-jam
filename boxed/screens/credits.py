@@ -1,61 +1,59 @@
-from blessed import Terminal
-
+import boxed
 from boxed.border import draw_boundary
 
 
-def print_authors(authors: list, terminal: Terminal) -> None:
+def print_authors(authors: dict[str, str]) -> None:
     """Prints a list of authors with links from a dictionary of authors and links."""
-    print(terminal.move_y(terminal.height // 2 - len(authors) // 2), end="")
+    print(boxed.terminal.move_y(boxed.terminal.height // 2 - len(authors) // 2), end="")
 
     for author in authors:
-        print(terminal.move_right(2), end="")
+        print(boxed.terminal.move_right(2), end="")
         print(
-            terminal.link(
+            boxed.terminal.link(
                 authors[author],
-                terminal.white_bold
+                boxed.terminal.white_bold
                 + author
-                + terminal.normal
+                + boxed.terminal.normal
                 + " - "
                 + authors[author],
             )
         )  # Not all terminals support links so it also prints the url next to the author
 
     print(
-        terminal.move(terminal.height - 3, terminal.width - 20)
-        + f"Press {terminal.white_bold}B{terminal.normal} to go back"
+        boxed.terminal.move(boxed.terminal.height - 3, boxed.terminal.width - 20)
+        + f"Press {boxed.terminal.white_bold}B{boxed.terminal.normal} to go back"
     )
-    draw_boundary(terminal)
+    draw_boundary()
 
 
-def show_credits(authors: list, terminal: Terminal) -> None:
+def show_credits(authors: dict[str, str]) -> None:
     """
     Displays a list of authors who contributed to this project.
 
     Args:
-        authors (list): A dictionary containing the author and their github page url
-        terminal (Terminal): A blessed.Terminal object
+        authors (dict): A dictionary containing the author and their github page url
     """
-    with terminal.fullscreen() and terminal.hidden_cursor():
-        print(terminal.clear)
-        print_authors(authors, terminal)
+    with boxed.terminal.fullscreen() and boxed.terminal.hidden_cursor():
+        print(boxed.terminal.clear)
+        print_authors(authors)
 
-        terminal_size = terminal.width, terminal.height
+        terminal_size = boxed.terminal.width, boxed.terminal.height
 
         while True:
-            with terminal.cbreak():
-                key = terminal.inkey(timeout=0.1)
+            with boxed.terminal.cbreak():
+                key = boxed.terminal.inkey(timeout=0.1)
 
                 # Resize border if the terminal size gets changed
-                if (terminal.width, terminal.height) != terminal_size:
-                    print(terminal.clear)
-                    print_authors(authors, terminal)
-                    draw_boundary(terminal)
-                    terminal_size = terminal.width, terminal.height
+                if (boxed.terminal.width, boxed.terminal.height) != terminal_size:
+                    print(boxed.terminal.clear)
+                    print_authors(authors)
+                    draw_boundary()
+                    terminal_size = boxed.terminal.width, boxed.terminal.height
 
                 if key == "b":
                     break
 
 
-def load_screen(authors: list, terminal: Terminal) -> None:
+def load_screen(authors: dict[str, str]) -> None:
     """Callback for loading a screen."""
-    show_credits(authors, terminal)
+    show_credits(authors)
