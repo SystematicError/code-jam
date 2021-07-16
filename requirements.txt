@@ -1,0 +1,6 @@
+blessed~=1.18.1
+playsound~=1.2.2
+
+# Dependencies for non-windows platforms like Linux
+vext~=0.7.6
+vext.gi~=0.7.4
