@@ -318,6 +318,39 @@ class Grid:
         print("\n".join(lines))
         return True
 
+    def cell_in_direction(self, start_cell: Cell, direction: Direction) -> typing.Optional[Cell]:
+        if direction is Direction.UP:
+            return self.cell_at(start_cell.x_pos, start_cell.y_pos-1)
+        elif direction is Direction.DOWN:
+            return self.cell_at(start_cell.x_pos, start_cell.y_pos+1)
+        elif direction is Direction.LEFT:
+            return self.cell_at(start_cell.x_pos-1, start_cell.y_pos)
+        elif direction is Direction.RIGHT:
+            return self.cell_at(start_cell.x_pos+1, start_cell.y_pos)
+
+    def cell_at(self, x: int, y: int) -> typing.Optional[Cell]:
+        if 0 <= x < self.dimensions.width and 0 <= y < self.dimensions.height:
+            return self.cells[y][x]
+        else:
+            return None
+
+    def create_cell_opening(self, cell1: Cell, cell2: Cell):
+        """Create an opening between two adjacent cells, on edges of both cells."""
+        direction = self.get_direction_between(cell1, cell2)
+        if direction is Direction.RIGHT:
+            cell1.openings.reverse_opening(Direction.RIGHT)
+            cell2.openings.reverse_opening(Direction.LEFT)
+        elif direction is Direction.LEFT:
+            cell1.openings.reverse_opening(Direction.LEFT)
+            cell2.openings.reverse_opening(Direction.RIGHT)
+
+        elif direction is Direction.DOWN:
+            cell1.openings.reverse_opening(Direction.DOWN)
+            cell2.openings.reverse_opening(Direction.UP)
+        else:
+            cell1.openings.reverse_opening(Direction.UP)
+            cell2.openings.reverse_opening(Direction.DOWN)
+
 
 def grid_center_offset_coords(grid_dimensions: GridDimensions) -> tuple[int, int]:
     """Get coordinates of the top left corner of a centered grid with `grid_dimensions`."""
