@@ -218,9 +218,13 @@ class Grid:
 
     def print_grid(self) -> None:
         """Print all cells in a centered grid."""
-        error_string = "Centered grid can't fit into terminal"
-        assert self.dimensions.char_width < boxed.terminal.width - 2, error_string  # noqa: S101
-        assert self.dimensions.char_height < boxed.terminal.height - 2, error_string  # noqa: S101
+        print(boxed.terminal.move_xy(boxed.terminal.width//2-18, boxed.terminal.height//2), end="")
+
+        if self.dimensions.char_width > boxed.terminal.width - 2:
+            return print("Your terminal's width is too small!")
+
+        elif self.dimensions.char_height > boxed.terminal.height - 2:
+            return print("Your terminal's height is too small!")
 
         lines = []
         x, y = grid_center_offset_coords(self.dimensions)
@@ -248,14 +252,15 @@ def load_screen(cell_size: int, width: int, height: int) -> None:
     terminal_size = 0, 0
 
     while True:
-        with boxed.terminal.cbreak():
-            key = boxed.terminal.inkey(timeout=0.1)
-            # Resize border if the terminal size gets changed
-            if (boxed.terminal.width, boxed.terminal.height) != terminal_size:
-                print(boxed.terminal.clear, end="")
-                draw_boundary()
-                grid.print_grid()
-                terminal_size = boxed.terminal.width, boxed.terminal.height
+        with boxed.terminal.hidden_cursor():
+            with boxed.terminal.cbreak():
+                key = boxed.terminal.inkey(timeout=0.1)
+                # Resize border if the terminal size gets changed
+                if (boxed.terminal.width, boxed.terminal.height) != terminal_size:
+                    print(boxed.terminal.clear, end="")
+                    draw_boundary()
+                    grid.print_grid()
+                    terminal_size = boxed.terminal.width, boxed.terminal.height
 
-            if key == "b":
-                break
+                if key == "b":
+                    break
