@@ -1,3 +1,7 @@
+# To prevent playsound() from blocking, the threading library is required
+# The block parameter instead as it is not cross platform
+from threading import Thread
+
 from blessed import Terminal
 from playsound import playsound
 
@@ -94,12 +98,12 @@ def get_selection(options: list, terminal: Terminal) -> int:
                 if key.name == "KEY_UP":
                     selection = (selection - 1) % len(options)
                     print_options(selection, options, terminal)
-                    playsound("music/up-down.wav")
+                    Thread(target=lambda: playsound("music/up-down.wav"), daemon=True).start()
 
                 elif key.name == "KEY_DOWN":
                     selection = (selection + 1) % len(options)
                     print_options(selection, options, terminal)
-                    playsound("music/up-down.wav")
+                    Thread(target=lambda: playsound("music/up-down.wav"), daemon=True).start()
 
                 elif key.name == "KEY_ENTER":
                     return selection
