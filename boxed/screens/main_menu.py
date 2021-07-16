@@ -105,6 +105,7 @@ def get_selection(options: list) -> int:
                     Thread(target=lambda: playsound("music/up-down.wav"), daemon=True).start()
 
                 elif key.name == "KEY_ENTER":
+                    Thread(target=lambda: playsound("music/up-down.wav"), daemon=True).start()
                     return selection
 
 

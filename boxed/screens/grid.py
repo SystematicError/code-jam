@@ -1,6 +1,9 @@
 import collections.abc
 import enum
 import typing
+from threading import Thread
+
+from playsound import playsound
 
 import boxed
 from boxed.border import draw_boundary
@@ -270,4 +273,5 @@ def load_screen(cell_size: int, width: int, height: int) -> None:
                     terminal_size = boxed.terminal.width, boxed.terminal.height
 
                 if key == "b":
+                    Thread(target=lambda: playsound("music/up-down.wav"), daemon=True).start()
                     break
