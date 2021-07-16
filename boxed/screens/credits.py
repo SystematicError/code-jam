@@ -1,6 +1,6 @@
 from blessed import Terminal
 
-from ..border import draw_boundary
+from boxed.border import draw_boundary
 
 
 def print_authors(authors: list, terminal: Terminal) -> None:

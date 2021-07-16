@@ -2,7 +2,7 @@ import time
 
 import blessed
 
-from .screens import credits, main_menu
+from boxed.screens import credits, main_menu
 
 try:
     import msvcrt
