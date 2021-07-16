@@ -216,15 +216,21 @@ class Grid:
                 row.append(Cell(x_pos, y_pos, dimensions))
             self.cells.append(row)
 
-    def print_grid(self) -> None:
-        """Print all cells in a centered grid."""
+    def print_grid(self) -> bool:
+        """
+        Print all cells in a centered grid.
+
+        Return True if the grid was displayed, False otherwise.
+        """
         print(boxed.terminal.move_xy(boxed.terminal.width//2-18, boxed.terminal.height//2), end="")
 
         if self.dimensions.char_width > boxed.terminal.width - 2:
-            return print("Your terminal's width is too small!")
+            print("Your terminal's width is too small!")
+            return False
 
         elif self.dimensions.char_height > boxed.terminal.height - 2:
-            return print("Your terminal's height is too small!")
+            print("Your terminal's height is too small!")
+            return False
 
         lines = []
         x, y = grid_center_offset_coords(self.dimensions)
@@ -237,6 +243,7 @@ class Grid:
                     + boxed.terminal.move_left.join(iterables)
                 )
         print("\n".join(lines))
+        return True
 
 
 def grid_center_offset_coords(grid_dimensions: GridDimensions) -> tuple[int, int]:
