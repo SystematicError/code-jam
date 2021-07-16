@@ -94,12 +94,12 @@ def get_selection(options: list, terminal: Terminal) -> int:
                 if key.name == "KEY_UP":
                     selection = (selection - 1) % len(options)
                     print_options(selection, options, terminal)
-                    playsound("boxed/music/up-down.wav")
+                    playsound("music/up-down.wav")
 
                 elif key.name == "KEY_DOWN":
                     selection = (selection + 1) % len(options)
                     print_options(selection, options, terminal)
-                    playsound("boxed/music/up-down.wav")
+                    playsound("music/up-down.wav")
 
                 elif key.name == "KEY_ENTER":
                     return selection
