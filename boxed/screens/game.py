@@ -89,13 +89,13 @@ class PathGenerator:
                         break
                     else:
                         path.pop()
-            try:
-                current_cell = min(
-                    valid_neighbours,
-                    key=lambda c: self.grid.distance_between(c, current_cell),
-                )
-            except ValueError:
-                return False
+                else:
+                    return False
+
+            current_cell = min(
+                valid_neighbours,
+                key=lambda c: self.grid.distance_between(c, current_cell),
+            )
             visited_cells.add(current_cell)
             path.append(current_cell)
         return True
