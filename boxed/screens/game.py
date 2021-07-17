@@ -163,7 +163,7 @@ class Game:
             self.end.render(boxed.terminal.red_on_black)
             self.current_selection.render(colour or boxed.terminal.bold_white)
 
-    def ends_connected(self) -> bool:
+    def solved(self) -> bool:
         """Verify if there's a valid paths between the ends"""
         if self.path_completed:
             return True
@@ -195,7 +195,7 @@ class Game:
             self.grid.create_cell_opening(cell1, cell2)
 
         # randomize openings of non path cells
-        while not self.ends_connected():
+        while not self.solved():
             for cell in set(more_itertools.flatten(self.grid.cells)).difference(self.path):
                 if random.random() < 0.80:
                     for opening_dir in random.sample(
@@ -249,5 +249,5 @@ def load_screen() -> bool:
                 elif key == " ":
                     game.current_selection.openings.rotate()
                     game.display_selection()
-                    if game.ends_connected():
+                    if game.solved():
                         return True
