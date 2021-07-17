@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import collections.abc
 import random
 import typing
@@ -104,14 +106,16 @@ class PathGenerator:
 class Game:
     """Hold control over a game on `grid`."""
 
-    def __init__(self, grid: grid.Grid):
+    def __init__(self, grid: grid.Grid, rec_child_count: int):
         self.grid = grid
         self._path_gen = PathGenerator(self.grid)
         self.path = None
         self.start = None
         self.end = None
+        self.recursive_cells = None
         self.current_selection = None
         self._selection_colour = boxed.terminal.black_on_white
+        self.recursive_child_count = rec_child_count
         self.path_completed = False
 
     def start_game(self) -> None:
@@ -123,11 +127,13 @@ class Game:
             self.grid.dimensions.width - 1,
             random.randrange(self.grid.dimensions.height),
         )
-
+        self.start.openings.rotatable = False
+        self.end.openings.rotatable = False
         self.start.openings.reverse_opening(grid.Direction.LEFT)
         self.end.openings.reverse_opening(grid.Direction.RIGHT)
         self._generate_game()
         self.current_selection = self.grid.cell_at(0, 0)
+        self.recursive_cells = random.sample(self.path[1:-1], self.recursive_child_count)
 
     def move_selection(self, direction: grid.Direction) -> None:
         """Move the current selection in `direction`"""
@@ -145,12 +151,14 @@ class Game:
         self.path[0].render(boxed.terminal.red_on_white)
         self.path[-1].render(boxed.terminal.red_on_white)
 
-    def display(self) -> None:
+    def display(self, depth: int) -> None:
         """Display the whole grid and highlight exits and selection."""
         print(boxed.terminal.clear, end="")
         draw_boundary()
         print(
-            boxed.terminal.move(boxed.terminal.height - 3, boxed.terminal.width - 26)
+            boxed.terminal.move(boxed.terminal.height - 4, boxed.terminal.width - 26)
+            + f"Current depth: {depth}"
+            + boxed.terminal.move(boxed.terminal.height - 3, boxed.terminal.width - 26)
             + f"Press {boxed.terminal.white_bold}S{boxed.terminal.normal} to stop the game"
         )
         if self.grid.print_grid():
@@ -219,15 +227,42 @@ class Game:
             cell.openings.rotate(random.randrange(0, 4))
 
 
+class GameTracker:
+    """Keep track of a game and the parent trackers which generated this tracker."""
+
+    def __init__(self, game: Game, parent: typing.Optional[GameTracker]):
+        self.parent = parent
+        self.game = game
+        self._children = {}
+
+    def child_tracker(self, cell: grid.Cell) -> GameTracker:
+        """Create a tracker instance based on `cell`."""
+        if cell not in self._children:
+            game = Game(grid.Grid(grid.GridDimensions(2, 4, 4)), self.game.recursive_child_count // 2)
+            game.start_game()
+            self._children[cell] = game
+        return GameTracker(self._children[cell], self)
+
+    def get_depth(self) -> int:
+        """Get the depth of this tracker's game."""
+        count = 0
+        parent = self.parent
+        while parent is not None:
+            parent = parent.parent
+            count += 1
+        return count
+
+
 def load_screen() -> bool:
     """
     Display and start a game.
 
     return True if the user won the game, False if they exited
     """
-    game = Game(grid.Grid(grid.GridDimensions(1, 4, 4)))
+    game_tracker = GameTracker(Game(grid.Grid(grid.GridDimensions(1, 4, 4)), 2), None)
+
     terminal_size = 0, 0
-    game.start_game()
+    game_tracker.game.start_game()
     while True:
         with boxed.terminal.hidden_cursor():
             with boxed.terminal.cbreak():
@@ -235,26 +270,42 @@ def load_screen() -> bool:
 
                 # Resize border if the terminal size gets changed
                 if (boxed.terminal.width, boxed.terminal.height) != terminal_size:
-                    print(boxed.terminal.clear, end="")
-                    draw_boundary()
-                    game.display()
+
+                    game_tracker.game.display(game_tracker.get_depth())
                     terminal_size = boxed.terminal.width, boxed.terminal.height
 
                 if key == "s":
-                    return False
+                    if game_tracker.parent is None:
+                        return False
+                    else:
+                        game_tracker = game_tracker.parent
+                        game_tracker.game.display(game_tracker.get_depth())
 
                 elif key == "h":
-                    game.display_generated_path()
+                    game_tracker.game.display_generated_path()
 
                 elif (
                     key.name
                     and (direction := key.name.removeprefix("KEY_"))
                     in grid.Direction.__members__
                 ):
-                    game.move_selection(grid.Direction[direction])
+                    game_tracker.game.move_selection(grid.Direction[direction])
 
                 elif key == " ":
-                    game.current_selection.openings.rotate()
-                    game.display_selection()
-                    if game.solved():
-                        return True
+                    if game_tracker.game.current_selection in game_tracker.game.recursive_cells:
+                        child_tracker = game_tracker.child_tracker(game_tracker.game.current_selection)
+                        if not child_tracker.game.solved():
+                            game_tracker = child_tracker
+                            game_tracker.game.display(game_tracker.get_depth())
+                        else:
+                            game_tracker.game.current_selection.openings.rotate()
+                            game_tracker.game.display_selection()
+                    else:
+                        game_tracker.game.current_selection.openings.rotate()
+                        if game_tracker.game.solved():
+                            if game_tracker.parent is None:
+                                return True
+                            else:
+                                game_tracker = game_tracker.parent
+                                game_tracker.game.display(game_tracker.get_depth())
+                        game_tracker.game.display_selection()
