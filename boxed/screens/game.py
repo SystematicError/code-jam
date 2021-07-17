@@ -205,7 +205,6 @@ def load_screen() -> None:
     """Display and start a game."""
     game = Game(grid.Grid(grid.GridDimensions(1, 16, 8)))
     terminal_size = 0, 0
-    hidden_selection = False
     game.start_game()
     while True:
         with boxed.terminal.hidden_cursor():
@@ -221,19 +220,6 @@ def load_screen() -> None:
 
                 if key == "s":
                     break
-
-                elif key == "d":
-                    if hidden_selection:
-                        game.display_selection()
-                    else:
-                        if (
-                            game.current_selection == game.start
-                            or game.current_selection == game.end
-                        ):
-                            game.display_selection(boxed.terminal.red)
-                        else:
-                            game.display_selection(boxed.terminal.white)
-                    hidden_selection = not hidden_selection
 
                 elif key == "h":
                     game.display_generated_path()
