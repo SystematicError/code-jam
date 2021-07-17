@@ -31,17 +31,14 @@ def display_tutorial(lines: List[str]) -> None:
 
         for wrapped_line in boxed.terminal.wrap(line, width=boxed.terminal.width - 4):
             print(wrapped_line, end="")
-            print(boxed.terminal.move_down(1) + boxed.terminal.move_x(2), end="")
+            print(boxed.terminal.move_down(1) + boxed.terminal.move_x(2), end="", flush=True)
 
 
 def load_screen(file: Path) -> None:
     """Callback for loading screen"""
+    display_tutorial(file.read_text(encoding="utf8").splitlines())
     with boxed.terminal.hidden_cursor():
-        display_tutorial(file.read_text(encoding="utf8").splitlines())
-        input()
-        # When i add the below lines it seems to break the code, nothing gets displayed
-
-        # with boxed.terminal.cbreak():
-        #     while True:
-        #         if boxed.terminal.inkey() == "b":
-        #             exit()
+        with boxed.terminal.cbreak():
+            while True:
+                if boxed.terminal.inkey() == "b":
+                    return
