@@ -147,6 +147,8 @@ class Game:
 
     def display(self) -> None:
         """Display the whole grid and highlight exits and selection."""
+        print(boxed.terminal.clear, end="")
+        draw_boundary()
         if self.grid.print_grid():
             self.path[0].render(boxed.terminal.red_on_black)
             self.path[-1].render(boxed.terminal.red_on_black)
