@@ -23,7 +23,7 @@ try:
 
         return False
 
-
+    blessed.win_terminal.Terminal.kbhit = _kbhit_patch
 except ModuleNotFoundError:
     pass
 
