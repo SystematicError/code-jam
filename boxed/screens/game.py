@@ -164,14 +164,20 @@ class Game:
         if self.grid.print_grid():
             self.path[0].render(boxed.terminal.red_on_black)
             self.path[-1].render(boxed.terminal.red_on_black)
+            for cell in self.recursive_cells:
+                cell.render(boxed.terminal.yellow_on_black)
             self.display_selection()
 
     def display_selection(
         self, colour: typing.Optional[typing.Callable] = None
     ) -> None:
         """Display the current selection with `colour` or black on white."""
+        for cell in self.recursive_cells:
+            cell.render(boxed.terminal.yellow)
         if self.current_selection is self.start or self.current_selection is self.end:
             self.current_selection.render(colour or boxed.terminal.bold_red)
+        elif self.current_selection in self.recursive_cells:
+            self.current_selection.render(boxed.terminal.bright_yellow)
         else:
             self.start.render(boxed.terminal.red_on_black)
             self.end.render(boxed.terminal.red_on_black)
