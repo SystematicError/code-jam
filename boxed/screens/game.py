@@ -141,7 +141,7 @@ class Game:
         self.recursive_cells.extend(
             random.sample(
                 list(set(more_itertools.flatten(self.grid.cells)).difference(self.path)),
-                min(self.recursive_child_count - 2, 0)
+                min(max(self.recursive_child_count - 2, 0), 0)
             )
         )
 
