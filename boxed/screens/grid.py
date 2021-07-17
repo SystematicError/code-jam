@@ -48,6 +48,7 @@ class CellOpenings:
 
     def __init__(self):
         self._openings = collections.deque((False, False, False, False))
+        self.rotatable = True
 
     def reset_openings(self) -> None:
         """Reset all openings to the closed state."""
@@ -55,11 +56,13 @@ class CellOpenings:
 
     def reverse_opening(self, opening: Direction) -> None:
         """Reverse the current state of `opening`."""
-        self._openings[opening] = not self._openings[opening]
+        if self.rotatable:
+            self._openings[opening] = not self._openings[opening]
 
     def rotate(self, n: int = 1) -> None:
         """Rotate the openings by `n` rotations clockwise."""
-        self._openings.rotate(n)
+        if self.rotatable:
+            self._openings.rotate(n)
 
     def __contains__(self, item: Direction):
         return self._openings[item]
@@ -80,8 +83,6 @@ class Cell:
         self.x_pos = x_pos
         self.y_pos = y_pos
         self.openings = CellOpenings()
-        self.rotatable = True
-
         self._grid_dimensions = grid_dimensions
 
     def generate_cell_lines(self) -> collections.abc.Iterable[str]:
