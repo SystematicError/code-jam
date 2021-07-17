@@ -47,7 +47,7 @@ try:
         if action == 0:    # Level selector
             cell_size = 0
             while cell_size <= 0:
-                cell_size = get_int_input("Enter cell size: (min 1)", 10, boxed.terminal.height//2)
+                cell_size = get_int_input("Enter cell size (min 1): ", 10, boxed.terminal.height//2)
             width = 0
             while width < 3:
                 width = get_int_input("Enter grid width (min 3): ", 10, boxed.terminal.height//2)
