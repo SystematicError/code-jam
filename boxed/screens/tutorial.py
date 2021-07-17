@@ -1,5 +1,8 @@
 from pathlib import Path
+from threading import Thread
 from typing import List
+
+from playsound import playsound
 
 import boxed
 from boxed.border import draw_boundary
@@ -46,4 +49,7 @@ def load_screen(file: Path) -> None:
                     terminal_size = (boxed.terminal.width, boxed.terminal.height)
 
                 if boxed.terminal.inkey(timeout=0.1) == "b":
+                    Thread(
+                        target=lambda: playsound("music/up-down.wav"), daemon=True
+                    ).start()
                     return
