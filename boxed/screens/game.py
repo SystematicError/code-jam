@@ -136,7 +136,7 @@ class Game:
         self._generate_game()
         self.current_selection = self.grid.cell_at(0, 0)
         self.recursive_cells = random.sample(
-            self.path[1:-1], min(self.recursive_cells, 2)
+            self.path[1:-1], min(self.recursive_child_count, 2, len(self.path))
         )
         self.recursive_cells.extend(
             random.sample(
