@@ -136,7 +136,13 @@ class Game:
         self._generate_game()
         self.current_selection = self.grid.cell_at(0, 0)
         self.recursive_cells = random.sample(
-            self.path[1:-1], self.recursive_child_count
+            self.path[1:-1], min(self.recursive_cells, 2)
+        )
+        self.recursive_cells.extend(
+            random.sample(
+                list(set(more_itertools.flatten(self.grid.cells)).difference(self.path)),
+                min(self.recursive_child_count - 2, 0)
+            )
         )
 
     def move_selection(self, direction: grid.Direction) -> None:
