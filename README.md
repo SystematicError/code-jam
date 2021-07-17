@@ -4,9 +4,13 @@
 
 Hello and welcome to **Boxed**, a recursive puzzle game, all within your terminal! This project was made as a submission for the [Python Discord Summer Code Jam 2021](https://pythondiscord.com/events/code-jams/8/).
 
-### Installation
+### Installation with poetry
 
 Boxed uses poetry as its dependency manager. For installation, clone this repository and run `poetry install` to get the requried dependencies.
+
+### Installation without poetry
+
+Don't want to use poetry to install the dependencies? No problem! Simply run `pip install -r requirements.txt` instead.
 
 ### Running the program
 

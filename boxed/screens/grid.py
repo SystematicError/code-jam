@@ -5,7 +5,6 @@ import enum
 import typing
 
 import boxed
-from boxed.border import draw_boundary
 from boxed.constants import WBorder
 
 WIDTH_MULTIPLIER = 3
@@ -17,9 +16,9 @@ class Direction(enum.IntEnum):  # noqa: D101
     DOWN = 2
     LEFT = 3
 
-    def opposite(self) -> None:
-        """Finds the opposite direction from current position"""
-        return Direction((self - 2) % 4)
+    def opposite(self) -> Direction:
+        """Get the direction opposite of `self`."""
+        return Direction((self-2) % 4)
 
 
 class GridDimensions(typing.NamedTuple):
@@ -123,19 +122,19 @@ class Cell:
             )
         )
 
-    def render(self, color_func: typing.Callable = lambda x: x) -> None:
+    def render(self, colour: typing.Optional[typing.Callable] = None) -> None:
         """Render the cell at its position in the grid."""
         x, y = self.get_cell_start()
+        if colour is None:
+            colour = boxed.terminal.white_on_black
         for row, line in enumerate(self.generate_cell_lines()):
             print(boxed.terminal.move_xy(x, y + row), end="")
-            print(color_func("".join(line)))
+            print(colour("".join(line)))
 
     def get_cell_start(self) -> tuple[int, int]:
         """Get the coordinates of the left corner of cell."""
         x, y = grid_center_offset_coords(self._grid.dimensions)
-        x += (
-            self._grid.dimensions.cell_size * WIDTH_MULTIPLIER * self.x_pos
-        ) + self.x_pos
+        x += (self._grid.dimensions.cell_size * WIDTH_MULTIPLIER * self.x_pos) + self.x_pos
         y += (self._grid.dimensions.cell_size * self.y_pos) + self.y_pos
         return x, y
 
@@ -213,9 +212,7 @@ class Cell:
         """Get the required center piece of an edge with the openings defined by `self.openings`."""
         if edge_loc is Direction.UP:
             neighbour = self._grid.cell_in_direction(self, edge_loc)
-            if edge_loc in self.openings and (
-                neighbour is None or self._grid.cells_connected(self, neighbour)
-            ):
+            if edge_loc in self.openings and (neighbour is None or self._grid.cells_connected(self, neighbour)):
                 return WBorder.VERTICAL_AND_HORIZONTAL
             elif edge_loc in self.openings:
                 return WBorder.DOWN_AND_HORIZONTAL
@@ -226,9 +223,7 @@ class Cell:
 
         elif edge_loc is Direction.DOWN:
             neighbour = self._grid.cell_in_direction(self, edge_loc)
-            if edge_loc in self.openings and (
-                neighbour is None or self._grid.cells_connected(self, neighbour)
-            ):
+            if edge_loc in self.openings and (neighbour is None or self._grid.cells_connected(self, neighbour)):
                 return WBorder.VERTICAL_AND_HORIZONTAL
             elif edge_loc in self.openings:
                 return WBorder.UP_AND_HORIZONTAL
@@ -239,9 +234,7 @@ class Cell:
 
         elif edge_loc is Direction.LEFT:
             neighbour = self._grid.cell_in_direction(self, edge_loc)
-            if edge_loc in self.openings and (
-                neighbour is None or self._grid.cells_connected(self, neighbour)
-            ):
+            if edge_loc in self.openings and (neighbour is None or self._grid.cells_connected(self, neighbour)):
                 return WBorder.VERTICAL_AND_HORIZONTAL
             elif edge_loc in self.openings:
                 return WBorder.VERTICAL_AND_RIGHT
@@ -252,9 +245,7 @@ class Cell:
 
         else:
             neighbour = self._grid.cell_in_direction(self, edge_loc)
-            if edge_loc in self.openings and (
-                neighbour is None or self._grid.cells_connected(self, neighbour)
-            ):
+            if edge_loc in self.openings and (neighbour is None or self._grid.cells_connected(self, neighbour)):
                 return WBorder.VERTICAL_AND_HORIZONTAL
             elif edge_loc in self.openings:
                 return WBorder.VERTICAL_AND_LEFT
@@ -322,11 +313,11 @@ class Grid:
         Return True if the grid was displayed, False otherwise.
         """
         print(
-            boxed.terminal.move_xy(
-                boxed.terminal.width // 2 - 18, boxed.terminal.height // 2
-            ),
-            end="",
+            boxed.terminal.move(boxed.terminal.height - 3, boxed.terminal.width - 26)
+            + f"Press {boxed.terminal.white_bold}S{boxed.terminal.normal} to stop the game"
         )
+
+        print(boxed.terminal.move_xy(boxed.terminal.width//2-18, boxed.terminal.height//2), end="")
 
         if self.dimensions.char_width > boxed.terminal.width - 2:
             print("Your terminal's width is too small!")
@@ -353,25 +344,35 @@ class Grid:
         print("\n".join(lines))
         return True
 
-    def cell_in_direction(
-        self, start_cell: Cell, direction: Direction
-    ) -> typing.Optional[Cell]:
-        """Returns the cell located in the given direction"""
-        if direction is Direction.UP:
-            return self.cell_at(start_cell.x_pos, start_cell.y_pos - 1)
-        elif direction is Direction.DOWN:
-            return self.cell_at(start_cell.x_pos, start_cell.y_pos + 1)
-        elif direction is Direction.LEFT:
-            return self.cell_at(start_cell.x_pos - 1, start_cell.y_pos)
-        elif direction is Direction.RIGHT:
-            return self.cell_at(start_cell.x_pos + 1, start_cell.y_pos)
-
     def cell_at(self, x: int, y: int) -> typing.Optional[Cell]:
-        """Returns the cell at the given xy position"""
+        """Get call at `x` and `y`, or None if the cell is out of bounds."""
         if 0 <= x < self.dimensions.width and 0 <= y < self.dimensions.height:
             return self.cells[y][x]
         else:
             return None
+
+    def cell_in_direction(self, start_cell: Cell, direction: Direction) -> typing.Optional[Cell]:
+        """Get cell in `direction` from `start_cell`, or None if the cell is at an edge."""
+        if direction is Direction.UP:
+            return self.cell_at(start_cell.x_pos, start_cell.y_pos-1)
+        elif direction is Direction.DOWN:
+            return self.cell_at(start_cell.x_pos, start_cell.y_pos+1)
+        elif direction is Direction.LEFT:
+            return self.cell_at(start_cell.x_pos-1, start_cell.y_pos)
+        elif direction is Direction.RIGHT:
+            return self.cell_at(start_cell.x_pos+1, start_cell.y_pos)
+
+    def cells_connected(self, cell1: Cell, cell2: Cell) -> bool:
+        """Check if there is a full connection between `cell1` and `cell2`."""
+        direction = self.get_direction_between(cell1, cell2)
+        if direction is Direction.UP:
+            return Direction.UP in cell1.openings and Direction.DOWN in cell2.openings
+        elif direction is Direction.DOWN:
+            return Direction.DOWN in cell1.openings and Direction.UP in cell2.openings
+        elif direction is Direction.LEFT:
+            return Direction.LEFT in cell1.openings and Direction.RIGHT in cell2.openings
+        else:
+            return Direction.RIGHT in cell1.openings and Direction.LEFT in cell2.openings
 
     def create_cell_opening(self, cell1: Cell, cell2: Cell) -> None:
         """Create an opening between two adjacent cells, on edges of both cells."""
@@ -390,29 +391,28 @@ class Grid:
             cell1.openings.reverse_opening(Direction.UP)
             cell2.openings.reverse_opening(Direction.DOWN)
 
+    @staticmethod
+    def get_direction_between(cell1: Cell, cell2: Cell) -> Direction:
+        """Get the direction from `cell1` to `cell2`."""
+        if cell1.y_pos == cell2.y_pos:
+            if cell1.x_pos < cell2.x_pos:
+                return Direction.RIGHT
+            else:
+                return Direction.LEFT
+        else:
+            if cell1.y_pos < cell2.y_pos:
+                return Direction.DOWN
+            else:
+                return Direction.UP
+
+    @staticmethod
+    def distance_between(cell1: Cell, cell2: Cell) -> int:
+        """Get the manhattan distance between two cells."""
+        return abs(cell1.x_pos - cell2.x_pos) + abs(cell1.y_pos - cell2.y_pos)
+
 
 def grid_center_offset_coords(grid_dimensions: GridDimensions) -> tuple[int, int]:
     """Get coordinates of the top left corner of a centered grid with `grid_dimensions`."""
     x = boxed.terminal.width // 2 - grid_dimensions.char_width // 2
     y = boxed.terminal.height // 2 - grid_dimensions.char_height // 2
     return x, y
-
-
-def load_screen(cell_size: int, width: int, height: int) -> None:
-    """Callback for loading a screen."""
-    grid = Grid(GridDimensions(cell_size, width, height))
-    terminal_size = 0, 0
-
-    while True:
-        with boxed.terminal.hidden_cursor():
-            with boxed.terminal.cbreak():
-                key = boxed.terminal.inkey(timeout=0.1)
-                # Resize border if the terminal size gets changed
-                if (boxed.terminal.width, boxed.terminal.height) != terminal_size:
-                    print(boxed.terminal.clear, end="")
-                    draw_boundary()
-                    grid.print_grid()
-                    terminal_size = boxed.terminal.width, boxed.terminal.height
-
-                if key == "b":
-                    break

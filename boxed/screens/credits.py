@@ -1,3 +1,7 @@
+from threading import Thread
+
+from playsound import playsound
+
 import boxed
 from boxed.border import draw_boundary
 
@@ -51,6 +55,7 @@ def show_credits(authors: dict[str, str]) -> None:
                     terminal_size = boxed.terminal.width, boxed.terminal.height
 
                 if key == "b":
+                    Thread(target=lambda: playsound("music/up-down.wav"), daemon=True).start()
                     break
 
 

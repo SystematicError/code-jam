@@ -3,7 +3,7 @@ import time
 import blessed
 
 import boxed
-from boxed.screens import credits, game, main_menu
+from boxed.screens import credits, game, main_menu, tutorial
 
 boxed.terminal = blessed.Terminal()
 try:
@@ -46,7 +46,7 @@ try:
             game.load_screen()
 
         elif action == 1:  # Tutorial
-            pass
+            tutorial.load_screen(open('tutorial.txt', 'r'))
 
         elif action == 2:  # Credits
             credits.load_screen(authors)

@@ -1,9 +1,11 @@
 import collections.abc
 import random
+import typing
 
 import more_itertools
 
 import boxed
+from boxed.border import draw_boundary
 from boxed.screens import grid
 
 KEY_OFFSETS = {
@@ -15,7 +17,7 @@ KEY_OFFSETS = {
 
 
 class PathGenerator:
-    """Used to create random paths from a start point to a end point"""
+    """Generate and verify paths between points on `grid`."""
 
     def __init__(self, grid: grid.Grid):
         self.grid = grid
@@ -24,9 +26,7 @@ class PathGenerator:
     def neighbours(self, cell: grid.Cell) -> collections.abc.Iterable[grid.Cell]:
         """Get all neighbours around `cell`."""
         for x_offset, y_offset in KEY_OFFSETS.values():
-            neighbour_cell = self.grid.cell_at(
-                cell.x_pos + x_offset, cell.y_pos + y_offset
-            )
+            neighbour_cell = self.grid.cell_at(cell.x_pos + x_offset, cell.y_pos + y_offset)
             if neighbour_cell is not None:
                 yield neighbour_cell
 
@@ -40,51 +40,12 @@ class PathGenerator:
         path = [start]
         current_cell = start
         while current_cell != end:
-            valid_neighbours = tuple(
-                cell
-                for cell in self.neighbours(current_cell)
-                if cell not in visited_cells
-            )
+            valid_neighbours = tuple(cell for cell in self.neighbours(current_cell) if cell not in visited_cells)
 
             if not valid_neighbours:
                 for current_cell in reversed(path.copy()):
                     valid_neighbours = tuple(
-                        cell
-                        for cell in self.neighbours(current_cell)
-                        if cell not in visited_cells
-                    )
-                    if valid_neighbours:
-                        break
-                    else:
-                        path.pop()
-
-            current_cell = random.choice(valid_neighbours)
-            visited_cells.add(current_cell)
-            path.append(current_cell)
-        return path
-
-    def validate_connection(self, start: grid.Cell, end: grid.Cell) -> list[grid.Cell]:
-        """
-        Generate a random path between `start` and `end`.
-
-        Both start and end are included in the resulting path
-        """
-        visited_cells = {start}
-        path = [start]
-        current_cell = start
-        while current_cell != end:
-            valid_neighbours = tuple(
-                cell
-                for cell in self.neighbours(current_cell)
-                if cell not in visited_cells
-            )
-
-            if not valid_neighbours:
-                for current_cell in reversed(path.copy()):
-                    valid_neighbours = tuple(
-                        cell
-                        for cell in self.neighbours(current_cell)
-                        if cell not in visited_cells
+                        cell for cell in self.neighbours(current_cell) if cell not in visited_cells
                     )
                     if valid_neighbours:
                         break
@@ -103,16 +64,14 @@ class PathGenerator:
         current_cell = start
         while current_cell != end:
             valid_neighbours = tuple(
-                cell
-                for cell in self.neighbours(current_cell)
+                cell for cell in self.neighbours(current_cell)
                 if cell not in visited_cells
                 and self.grid.cells_connected(cell, current_cell)
             )
             if not valid_neighbours:
                 for current_cell in reversed(path.copy()):
                     valid_neighbours = tuple(
-                        cell
-                        for cell in self.neighbours(current_cell)
+                        cell for cell in self.neighbours(current_cell)
                         if cell not in visited_cells
                         and self.grid.cells_connected(cell, current_cell)
                     )
@@ -121,142 +80,129 @@ class PathGenerator:
                     else:
                         path.pop()
             try:
-                current_cell = min(
-                    valid_neighbours,
-                    key=lambda c: self.grid.distance_between(c, current_cell),
-                )
+                current_cell = min(valid_neighbours, key=lambda c: self.grid.distance_between(c, current_cell))
             except ValueError:
                 return False
             visited_cells.add(current_cell)
             path.append(current_cell)
-        print(end in path)
         return True
 
 
 class Game:
-    """Game instance"""
+    """Hold control over a game on `grid`."""
 
     def __init__(self, grid: grid.Grid):
         self.grid = grid
-        self.path_gen = PathGenerator(self.grid)
+        self._path_gen = PathGenerator(self.grid)
         self.path = None
         self.start = None
         self.end = None
+        self.current_selection = None
+        self._selection_colour = boxed.terminal.black_on_white
 
-    def generate_game(self) -> None:
-        """Displays the current game"""
+    def start_game(self) -> None:
+        """Start the game by picking exit points, generating a valid path and randomizing other cells."""
         for cell in more_itertools.flatten(self.grid.cells):
             cell.openings.reset_openings()
-        self.start = start = self.grid.cell_at(
-            0, random.randrange(self.grid.dimensions.height)
-        )
-        self.end = end = self.grid.cell_at(
-            self.grid.dimensions.width - 1,
-            random.randrange(self.grid.dimensions.height),
-        )
+        self.start = self.grid.cell_at(0, random.randrange(self.grid.dimensions.height))
+        self.end = self.grid.cell_at(self.grid.dimensions.width-1, random.randrange(self.grid.dimensions.height))
 
-        start.openings.reverse_opening(grid.Direction.LEFT)
-        end.openings.reverse_opening(grid.Direction.RIGHT)
+        self.start.openings.reverse_opening(grid.Direction.LEFT)
+        self.end.openings.reverse_opening(grid.Direction.RIGHT)
+        self._generate_game()
+        self.current_selection = self.grid.cell_at(0, 0)
 
-        path = self.path_gen.generate_path(start, end)
-        cell_count = self.grid.dimensions.height * self.grid.dimensions.width
-        straight_dist = abs(start.x_pos - end.x_pos) + abs(start.y_pos - end.y_pos)
+    def move_selection(self, direction: grid.Direction) -> None:
+        """Move the current selection in `direction`"""
+        if (target := self.grid.cell_in_direction(self.current_selection, direction)) is not None:
+            self.current_selection.render()
+            self.current_selection = target
+            self.display_selection()
 
+    def display_generated_path(self) -> None:
+        """Display the stored valid path."""
+        for cell in self.path[1:]:
+            cell.render(boxed.terminal.black_on_white)
+        self.path[0].render(boxed.terminal.red_on_white)
+        self.path[-1].render(boxed.terminal.red_on_white)
+
+    def display(self) -> None:
+        """Display the whole grid and highlight exits and selection."""
+        if self.grid.print_grid():
+            self.path[0].render(boxed.terminal.red_on_black)
+            self.path[-1].render(boxed.terminal.red_on_black)
+            self.display_selection()
+
+    def display_selection(self, colour: typing.Optional[typing.Callable] = None) -> None:
+        """Display the current selection with `colour` or black on white."""
+        if self.current_selection is self.start or self.current_selection is self.end:
+            self.current_selection.render(colour or boxed.terminal.red_on_white)
+        else:
+            self.start.render(boxed.terminal.red_on_black)
+            self.end.render(boxed.terminal.red_on_black)
+            self.current_selection.render(colour or boxed.terminal.black_on_white)
+
+    def _generate_game(self) -> None:
+        """
+        Generate a game from the current start and end points.
+
+        The pregenerated path is stored in `self.path`
+        """
+        cell_count = self.grid.dimensions.height*self.grid.dimensions.width
+        straight_distance = abs(self.start.x_pos - self.end.x_pos) + abs(self.start.y_pos - self.end.y_pos)
+
+        self.path = self._path_gen.generate_path(self.start, self.end)
         # regenerate the path if it fills up too much space or is too straight
-        # modifiers need adjustment to scale with square root of total grid size
-        while len(path) > cell_count * 0.75 or len(path) < straight_dist * 1.2:
-            path = self.path_gen.generate_path(start, end)
+        while len(self.path) > cell_count*.75 or len(self.path) < straight_distance * 1.2:
+            self.path = self._path_gen.generate_path(self.start, self.end)
 
-        for c1, c2 in more_itertools.windowed(path, 2):
-            self.grid.create_cell_opening(c1, c2)
+        for cell1, cell2 in more_itertools.windowed(self.path, 2):
+            self.grid.create_cell_opening(cell1, cell2)
 
-        # randomize openings of non path openings
-        for cell in set(more_itertools.flatten(self.grid.cells)).difference(path):
-            for opening_dir in random.sample(
-                list(grid.Direction), random.randrange(2, 5)
-            ):
-                cell.openings.reverse_opening(opening_dir)
-                if (c := self.grid.cell_in_direction(cell, opening_dir)) is not None:
-                    c.openings.reverse_opening(opening_dir.opposite())
+        # randomize openings of non path cells
+        for cell in set(more_itertools.flatten(self.grid.cells)).difference(self.path):
+            if random.random() < .80:
+                for opening_dir in random.sample(list(grid.Direction), random.randrange(2, 5)):
+                    cell.openings.reverse_opening(opening_dir)
+                    if (neighbour := self.grid.cell_in_direction(cell, opening_dir)) is not None:
+                        neighbour.openings.reverse_opening(opening_dir.opposite())
 
-        # rotate cells randomly
-        # we need to make sure the end and stat cells point to edges instead of only ending at them
+        # rotate ells randomly
         for cell in more_itertools.flatten(self.grid.cells):
-
-            cell.openings.rotate(random.randrange(1, 5))
-
-        self.grid.print_grid()
-
-        # for cell in path[1:]:
-        #     cell.render(boxed.terminal.black_on_white)
-        path[0].render(boxed.terminal.red_on_white)
-        path[-1].render(boxed.terminal.red_on_white)
+            cell.openings.rotate(random.randrange(0, 4))
 
 
 def load_screen() -> None:
-    """Callback to load screen"""
+    """Display and start a game."""
     game = Game(grid.Grid(grid.GridDimensions(1, 4, 4)))
     terminal_size = 0, 0
-    color = boxed.terminal.black_on_white
-    c = True
+    game.start_game()
     while True:
-
         with boxed.terminal.cbreak():
             key = boxed.terminal.inkey(timeout=0.1)
 
             # Resize border if the terminal size gets changed
             if (boxed.terminal.width, boxed.terminal.height) != terminal_size:
                 print(boxed.terminal.clear, end="")
-                game.grid.print_grid()
-                game.generate_game()
+                draw_boundary()
+                game.display()
                 terminal_size = boxed.terminal.width, boxed.terminal.height
-                cell = game.grid.cell_at(0, 0)
-                cell.render(boxed.terminal.black_on_white)
 
-            if key == "b":
+            if key == "s":
                 break
-            if key == "c":
-                print(game.path_gen.verify_path(game.start, game.end))
 
             elif key == "r":
-                game.grid.print_grid()
-                game.generate_game()
-                cell = game.grid.cell_at(0, 0)
-                cell.render(color)
+                game.start_game()
 
-            elif (
-                key.name
-                and (direction := key.name.removeprefix("KEY_"))
-                in grid.Direction.__members__
-            ):
-                new_cell = game.grid.cell_in_direction(cell, grid.Direction[direction])
-                if new_cell is not None:
-                    cell.render()  # blackout old cell
-                    new_cell.render(color)
+            elif key == "d":
+                game.display_selection(boxed.terminal.white_on_black)
 
-                    game.start.render(boxed.terminal.red_on_white)
-                    game.end.render(boxed.terminal.red_on_white)
+            elif key == "h":
+                game.display_generated_path()
 
-                    cell = new_cell
-            elif key == "m":
-                while True:
-                    key = boxed.terminal.inkey()
-                    if key.name is not None:
-                        if key.name.removeprefix("KEY_") in grid.Direction.__members__:
-                            cell.openings.reverse_opening(
-                                grid.Direction[key.name.removeprefix("KEY_")]
-                            )
-                            cell.render(color)
-                        elif key.name == "KEY_ENTER":
-                            break
+            elif key.name and (direction := key.name.removeprefix("KEY_")) in grid.Direction.__members__:
+                game.move_selection(grid.Direction[direction])
 
             elif key == " ":
-                cell.openings.rotate()
-                cell.render(boxed.terminal.black_on_white)
-            elif key == "l":
-                # trigger current cell highlight
-                if c:
-                    color = boxed.terminal.white_on_black
-                else:
-                    color = boxed.terminal.black_on_white
-                c = not c
+                game.current_selection.openings.rotate()
+                game.display_selection()
