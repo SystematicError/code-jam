@@ -78,12 +78,12 @@ class CellOpenings:
 class Cell:
     """Manage a single cell in a grid defined by `grid_dimensions`."""
 
-    def __init__(self, x_pos: int, y_pos: int, grid_dimensions: GridDimensions):
-        self.size = grid_dimensions.cell_size
+    def __init__(self, x_pos: int, y_pos: int, grid: Grid):
+        self.size = grid.dimensions.cell_size
         self.x_pos = x_pos
         self.y_pos = y_pos
         self.openings = CellOpenings()
-        self._grid_dimensions = grid_dimensions
+        self._grid = grid
 
     def generate_cell_lines(self) -> collections.abc.Iterable[str]:
         """Create the text representation of the cell as individual lines."""
@@ -129,9 +129,9 @@ class Cell:
 
     def get_cell_start(self) -> tuple[int, int]:
         """Get the coordinates of the left corner of cell."""
-        x, y = grid_center_offset_coords(self._grid_dimensions)
-        x += (self._grid_dimensions.cell_size * WIDTH_MULTIPLIER * self.x_pos) + self.x_pos
-        y += (self._grid_dimensions.cell_size * self.y_pos) + self.y_pos
+        x, y = grid_center_offset_coords(self._grid.dimensions)
+        x += (self._grid.dimensions.cell_size * WIDTH_MULTIPLIER * self.x_pos) + self.x_pos
+        y += (self._grid.dimensions.cell_size * self.y_pos) + self.y_pos
         return x, y
 
     def get_corners(self) -> tuple[WBorder, WBorder, WBorder, WBorder]:
@@ -144,7 +144,7 @@ class Cell:
                     WBorder.VERTICAL_AND_RIGHT,
                     WBorder.VERTICAL_AND_HORIZONTAL,
                 )
-            elif self.y_pos == self._grid_dimensions.height - 1:
+            elif self.y_pos == self._grid.dimensions.height - 1:
                 return (
                     WBorder.VERTICAL_AND_RIGHT,
                     WBorder.VERTICAL_AND_HORIZONTAL,
@@ -159,7 +159,7 @@ class Cell:
                     WBorder.VERTICAL_AND_HORIZONTAL,
                 )
 
-        elif self.x_pos == self._grid_dimensions.width - 1:
+        elif self.x_pos == self._grid.dimensions.width - 1:
             if self.y_pos == 0:
                 return (
                     WBorder.DOWN_AND_HORIZONTAL,
@@ -167,7 +167,7 @@ class Cell:
                     WBorder.VERTICAL_AND_HORIZONTAL,
                     WBorder.VERTICAL_AND_LEFT,
                 )
-            elif self.y_pos == self._grid_dimensions.height - 1:
+            elif self.y_pos == self._grid.dimensions.height - 1:
                 return (
                     WBorder.VERTICAL_AND_HORIZONTAL,
                     WBorder.VERTICAL_AND_LEFT,
@@ -189,7 +189,7 @@ class Cell:
                     WBorder.VERTICAL_AND_HORIZONTAL,
                     WBorder.VERTICAL_AND_HORIZONTAL,
                 )
-            elif self.y_pos == self._grid_dimensions.height - 1:
+            elif self.y_pos == self._grid.dimensions.height - 1:
                 return (
                     WBorder.VERTICAL_AND_HORIZONTAL,
                     WBorder.VERTICAL_AND_HORIZONTAL,
@@ -225,7 +225,7 @@ class Grid:
         for y_pos in range(dimensions.height):
             row = []
             for x_pos in range(dimensions.width):
-                row.append(Cell(x_pos, y_pos, dimensions))
+                row.append(Cell(x_pos, y_pos, self))
             self.cells.append(row)
 
     def print_grid(self) -> bool:
