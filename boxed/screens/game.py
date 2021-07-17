@@ -136,11 +136,11 @@ class Game:
     def display_selection(self, colour: typing.Optional[typing.Callable] = None) -> None:
         """Display the current selection with `colour` or black on white."""
         if self.current_selection is self.start or self.current_selection is self.end:
-            self.current_selection.render(colour or boxed.terminal.red_on_white)
+            self.current_selection.render(colour or boxed.terminal.bold_red)
         else:
             self.start.render(boxed.terminal.red_on_black)
             self.end.render(boxed.terminal.red_on_black)
-            self.current_selection.render(colour or boxed.terminal.black_on_white)
+            self.current_selection.render(colour or boxed.terminal.bold_white)
 
     def _generate_game(self) -> None:
         """
@@ -174,35 +174,41 @@ class Game:
 
 def load_screen() -> None:
     """Display and start a game."""
-    game = Game(grid.Grid(grid.GridDimensions(1, 4, 4)))
+    game = Game(grid.Grid(grid.GridDimensions(1, 16, 8)))
     terminal_size = 0, 0
+    hidden_selection = False
     game.start_game()
     while True:
-        with boxed.terminal.cbreak():
-            key = boxed.terminal.inkey(timeout=0.1)
+        with boxed.terminal.hidden_cursor():
+            with boxed.terminal.cbreak():
+                key = boxed.terminal.inkey(timeout=0.1)
 
-            # Resize border if the terminal size gets changed
-            if (boxed.terminal.width, boxed.terminal.height) != terminal_size:
-                print(boxed.terminal.clear, end="")
-                draw_boundary()
-                game.display()
-                terminal_size = boxed.terminal.width, boxed.terminal.height
+                # Resize border if the terminal size gets changed
+                if (boxed.terminal.width, boxed.terminal.height) != terminal_size:
+                    print(boxed.terminal.clear, end="")
+                    draw_boundary()
+                    game.display()
+                    terminal_size = boxed.terminal.width, boxed.terminal.height
 
-            if key == "s":
-                break
+                if key == "s":
+                    break
 
-            elif key == "r":
-                game.start_game()
+                elif key == "d":
+                    if hidden_selection:
+                        game.display_selection()
+                    else:
+                        if game.current_selection == game.start or game.current_selection == game.end:
+                            game.display_selection(boxed.terminal.red)
+                        else:
+                            game.display_selection(boxed.terminal.white)
+                    hidden_selection = not hidden_selection
 
-            elif key == "d":
-                game.display_selection(boxed.terminal.white_on_black)
+                elif key == "h":
+                    game.display_generated_path()
 
-            elif key == "h":
-                game.display_generated_path()
+                elif key.name and (direction := key.name.removeprefix("KEY_")) in grid.Direction.__members__:
+                    game.move_selection(grid.Direction[direction])
 
-            elif key.name and (direction := key.name.removeprefix("KEY_")) in grid.Direction.__members__:
-                game.move_selection(grid.Direction[direction])
-
-            elif key == " ":
-                game.current_selection.openings.rotate()
-                game.display_selection()
+                elif key == " ":
+                    game.current_selection.openings.rotate()
+                    game.display_selection()
