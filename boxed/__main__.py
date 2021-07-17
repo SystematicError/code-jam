@@ -4,7 +4,7 @@ from pathlib import Path
 import blessed
 
 import boxed
-from boxed.screens import credits, game, main_menu, tutorial
+from boxed.screens import credits, game, main_menu, tutorial, victory
 
 boxed.terminal = blessed.Terminal()
 try:
@@ -43,17 +43,20 @@ try:
     while True:
         action = main_menu.load_screen(menu_options)
 
-        if action == 0:  # Level selector
-            game.load_screen()
+        if action == 0:    # Level selector
+            if game.load_screen():    # Returns true when game is won
+                break
 
-        elif action == 1:  # Tutorial
+        elif action == 1:    # Tutorial
             tutorial.load_screen(Path("tutorial.txt"))
 
-        elif action == 2:  # Credits
+        elif action == 2:    # Credits
             credits.load_screen(authors)
 
-        elif action == 3:
+        elif action == 3:    # Quit Menu
             raise KeyboardInterrupt()
+
+    victory.load_screen()
 
 except KeyboardInterrupt:
     print(boxed.terminal.move_xy(0, boxed.terminal.height), end="")
