@@ -5,8 +5,8 @@ import typing
 import more_itertools
 
 import boxed
+from boxed import grid
 from boxed.border import draw_boundary
-from boxed.screens import grid
 
 KEY_OFFSETS = {
     "KEY_DOWN": (0, 1),
