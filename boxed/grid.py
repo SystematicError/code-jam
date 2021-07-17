@@ -288,11 +288,6 @@ class Grid:
         Return True if the grid was displayed, False otherwise.
         """
         print(
-            boxed.terminal.move(boxed.terminal.height - 3, boxed.terminal.width - 26)
-            + f"Press {boxed.terminal.white_bold}S{boxed.terminal.normal} to stop the game"
-        )
-
-        print(
             boxed.terminal.move_xy(
                 boxed.terminal.width // 2 - 18, boxed.terminal.height // 2
             ),

@@ -149,6 +149,10 @@ class Game:
         """Display the whole grid and highlight exits and selection."""
         print(boxed.terminal.clear, end="")
         draw_boundary()
+        print(
+            boxed.terminal.move(boxed.terminal.height - 3, boxed.terminal.width - 26)
+            + f"Press {boxed.terminal.white_bold}S{boxed.terminal.normal} to stop the game"
+        )
         if self.grid.print_grid():
             self.path[0].render(boxed.terminal.red_on_black)
             self.path[-1].render(boxed.terminal.red_on_black)
