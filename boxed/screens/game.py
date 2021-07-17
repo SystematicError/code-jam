@@ -216,6 +216,8 @@ class Game:
             self.grid.create_cell_opening(cell1, cell2)
 
         # randomize openings of non path cells
+        for cell in self.path:
+            cell.openings.rotate(random.randrange(0, 4))
         while not self.solved(cache=False):
             for cell in set(more_itertools.flatten(self.grid.cells)).difference(self.path):
                 if random.random() < 0.80:
@@ -229,7 +231,7 @@ class Game:
                             neighbour.openings.reverse_opening(opening_dir.opposite())
 
         # rotate ells randomly
-        for cell in more_itertools.flatten(self.grid.cells):
+        for cell in set(more_itertools.flatten(self.grid.cells)).difference(self.path):
             cell.openings.rotate(random.randrange(0, 4))
 
 
