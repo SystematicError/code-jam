@@ -231,6 +231,14 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "more-itertools"
+version = "8.8.0"
+description = "More routines for operating on iterables, beyond itertools"
+category = "main"
+optional = false
+python-versions = ">=3.5"
+
+[[package]]
 name = "nodeenv"
 version = "1.6.0"
 description = "Node.js virtual environment builder"
@@ -447,7 +455,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "3.9.*"
-content-hash = "251513a890bca21a6023884ecf23412fe11498f495810b19ed026c11b56a8dd3"
+content-hash = "9e20a31c95d7ec4e9714709c846c36803e3514b506c99725f89dad69d3bb6868"
 
 [metadata.files]
 ansicon = [
@@ -532,6 +540,10 @@ jinxed = [
 mccabe = [
     {file = "mccabe-0.6.1-py2.py3-none-any.whl", hash = "sha256:ab8a6258860da4b6677da4bd2fe5dc2c659cff31b3ee4f7f5d64e79735b80d42"},
     {file = "mccabe-0.6.1.tar.gz", hash = "sha256:dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f"},
+]
+more-itertools = [
+    {file = "more-itertools-8.8.0.tar.gz", hash = "sha256:83f0308e05477c68f56ea3a888172c78ed5d5b3c282addb67508e7ba6c8f813a"},
+    {file = "more_itertools-8.8.0-py3-none-any.whl", hash = "sha256:2cf89ec599962f2ddc4d568a05defc40e0a587fbc10d5989713638864c36be4d"},
 ]
 nodeenv = [
     {file = "nodeenv-1.6.0-py2.py3-none-any.whl", hash = "sha256:621e6b7076565ddcacd2db0294c0381e01fd28945ab36bcf00f41c5daf63bef7"},

@@ -1,5 +1,6 @@
 blessed~=1.18.1
 playsound~=1.2.2
+more-itertools~=8.8.0
 
 # Dependencies for non-windows platforms like Linux
 vext~=0.7.6
