@@ -3,7 +3,7 @@ import time
 import blessed
 
 import boxed
-from boxed.screens import credits, grid, main_menu, tutorial
+from boxed.screens import credits, game, main_menu, tutorial
 
 boxed.terminal = blessed.Terminal()
 try:
@@ -44,7 +44,7 @@ try:
         action = main_menu.load_screen(menu_options)
 
         if action == 0:  # Level selector
-            grid.load_screen(cell_size=4, width=5, height=5)
+            game.load_screen()
 
         elif action == 1:  # Tutorial
             tutorial.load_screen(open('tutorial.txt', 'r'))
