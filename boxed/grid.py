@@ -52,8 +52,7 @@ class CellOpenings:
 
     def reverse_opening(self, opening: Direction) -> None:
         """Reverse the current state of `opening`."""
-        if self.rotatable:
-            self._openings[opening] = not self._openings[opening]
+        self._openings[opening] = not self._openings[opening]
 
     def rotate(self, n: int = 1) -> None:
         """Rotate the openings by `n` rotations clockwise."""
