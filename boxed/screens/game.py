@@ -133,7 +133,9 @@ class Game:
         self.end.openings.reverse_opening(grid.Direction.RIGHT)
         self._generate_game()
         self.current_selection = self.grid.cell_at(0, 0)
-        self.recursive_cells = random.sample(self.path[1:-1], self.recursive_child_count)
+        self.recursive_cells = random.sample(
+            self.path[1:-1], self.recursive_child_count
+        )
 
     def move_selection(self, direction: grid.Direction) -> None:
         """Move the current selection in `direction`"""
@@ -216,23 +218,30 @@ class Game:
             self.grid.create_cell_opening(cell1, cell2)
 
         # randomize openings of non path cells
-        for cell in self.path:
-            cell.openings.rotate(random.randrange(0, 4))
-        while not self.solved(cache=False):
-            for cell in set(more_itertools.flatten(self.grid.cells)).difference(self.path):
+        while self.solved(cache=False):
+            for cell in set(more_itertools.flatten(self.grid.cells)).difference(
+                self.path
+            ):
                 if random.random() < 0.80:
                     for opening_dir in random.sample(
                         list(grid.Direction), random.randrange(2, 5)
                     ):
                         cell.openings.reverse_opening(opening_dir)
                         if (
-                            neighbour := self.grid.cell_in_direction(cell, opening_dir)
-                        ) is not None:
+                            (
+                                neighbour := self.grid.cell_in_direction(
+                                    cell, opening_dir
+                                )
+                            )
+                            is not None
+                            and neighbour is not self.start
+                            and neighbour is not self.end
+                        ):
                             neighbour.openings.reverse_opening(opening_dir.opposite())
 
-        # rotate ells randomly
-        for cell in set(more_itertools.flatten(self.grid.cells)).difference(self.path):
-            cell.openings.rotate(random.randrange(0, 4))
+            # rotate ells randomly
+            for cell in more_itertools.flatten(self.grid.cells):
+                cell.openings.rotate(random.randrange(0, 4))
 
 
 class GameTracker:
@@ -246,7 +255,10 @@ class GameTracker:
     def child_tracker(self, cell: grid.Cell) -> GameTracker:
         """Create a tracker instance based on `cell`."""
         if cell not in self._children:
-            game = Game(grid.Grid(grid.GridDimensions(2, 4, 4)), self.game.recursive_child_count // 2)
+            game = Game(
+                grid.Grid(grid.GridDimensions(2, 4, 4)),
+                self.game.recursive_child_count // 2,
+            )
             game.start_game()
             self._children[cell] = game
         return GameTracker(self._children[cell], self)
@@ -300,8 +312,13 @@ def load_screen() -> bool:
                     game_tracker.game.move_selection(grid.Direction[direction])
 
                 elif key == " ":
-                    if game_tracker.game.current_selection in game_tracker.game.recursive_cells:
-                        child_tracker = game_tracker.child_tracker(game_tracker.game.current_selection)
+                    if (
+                        game_tracker.game.current_selection
+                        in game_tracker.game.recursive_cells
+                    ):
+                        child_tracker = game_tracker.child_tracker(
+                            game_tracker.game.current_selection
+                        )
                         if not child_tracker.game.solved():
                             game_tracker = child_tracker
                             game_tracker.game.display(game_tracker.get_depth())
