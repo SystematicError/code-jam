@@ -189,16 +189,17 @@ class Game:
             self.grid.create_cell_opening(cell1, cell2)
 
         # randomize openings of non path cells
-        for cell in set(more_itertools.flatten(self.grid.cells)).difference(self.path):
-            if random.random() < 0.80:
-                for opening_dir in random.sample(
-                    list(grid.Direction), random.randrange(2, 5)
-                ):
-                    cell.openings.reverse_opening(opening_dir)
-                    if (
-                        neighbour := self.grid.cell_in_direction(cell, opening_dir)
-                    ) is not None:
-                        neighbour.openings.reverse_opening(opening_dir.opposite())
+        while not self.ends_connected():
+            for cell in set(more_itertools.flatten(self.grid.cells)).difference(self.path):
+                if random.random() < 0.80:
+                    for opening_dir in random.sample(
+                        list(grid.Direction), random.randrange(2, 5)
+                    ):
+                        cell.openings.reverse_opening(opening_dir)
+                        if (
+                            neighbour := self.grid.cell_in_direction(cell, opening_dir)
+                        ) is not None:
+                            neighbour.openings.reverse_opening(opening_dir.opposite())
 
         # rotate ells randomly
         for cell in more_itertools.flatten(self.grid.cells):
