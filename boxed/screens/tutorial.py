@@ -21,7 +21,7 @@ def display_tutorial(lines: List[str]) -> None:
             title=boxed.terminal.white_underline + boxed.terminal.bold,
             bold=boxed.terminal.bold,
             normal=boxed.terminal.normal,
-            breakline=boxed.terminal.white_underline + boxed.terminal.normal
+            breakline=boxed.terminal.white_underline + boxed.terminal.normal,
         )
         for line in lines
     ]

@@ -107,15 +107,21 @@ def get_selection(options: list) -> int:
                 if key.name == "KEY_UP":
                     selection = (selection - 1) % len(options)
                     print_options(selection, options)
-                    Thread(target=lambda: playsound("music/up-down.wav"), daemon=True).start()
+                    Thread(
+                        target=lambda: playsound("music/up-down.wav"), daemon=True
+                    ).start()
 
                 elif key.name == "KEY_DOWN":
                     selection = (selection + 1) % len(options)
                     print_options(selection, options)
-                    Thread(target=lambda: playsound("music/up-down.wav"), daemon=True).start()
+                    Thread(
+                        target=lambda: playsound("music/up-down.wav"), daemon=True
+                    ).start()
 
                 elif key.name == "KEY_ENTER":
-                    Thread(target=lambda: playsound("music/up-down.wav"), daemon=True).start()
+                    Thread(
+                        target=lambda: playsound("music/up-down.wav"), daemon=True
+                    ).start()
                     return selection
 
 

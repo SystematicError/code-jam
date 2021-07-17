@@ -26,7 +26,9 @@ class PathGenerator:
     def neighbours(self, cell: grid.Cell) -> collections.abc.Iterable[grid.Cell]:
         """Get all neighbours around `cell`."""
         for x_offset, y_offset in KEY_OFFSETS.values():
-            neighbour_cell = self.grid.cell_at(cell.x_pos + x_offset, cell.y_pos + y_offset)
+            neighbour_cell = self.grid.cell_at(
+                cell.x_pos + x_offset, cell.y_pos + y_offset
+            )
             if neighbour_cell is not None:
                 yield neighbour_cell
 
@@ -40,12 +42,18 @@ class PathGenerator:
         path = [start]
         current_cell = start
         while current_cell != end:
-            valid_neighbours = tuple(cell for cell in self.neighbours(current_cell) if cell not in visited_cells)
+            valid_neighbours = tuple(
+                cell
+                for cell in self.neighbours(current_cell)
+                if cell not in visited_cells
+            )
 
             if not valid_neighbours:
                 for current_cell in reversed(path.copy()):
                     valid_neighbours = tuple(
-                        cell for cell in self.neighbours(current_cell) if cell not in visited_cells
+                        cell
+                        for cell in self.neighbours(current_cell)
+                        if cell not in visited_cells
                     )
                     if valid_neighbours:
                         break
@@ -64,14 +72,16 @@ class PathGenerator:
         current_cell = start
         while current_cell != end:
             valid_neighbours = tuple(
-                cell for cell in self.neighbours(current_cell)
+                cell
+                for cell in self.neighbours(current_cell)
                 if cell not in visited_cells
                 and self.grid.cells_connected(cell, current_cell)
             )
             if not valid_neighbours:
                 for current_cell in reversed(path.copy()):
                     valid_neighbours = tuple(
-                        cell for cell in self.neighbours(current_cell)
+                        cell
+                        for cell in self.neighbours(current_cell)
                         if cell not in visited_cells
                         and self.grid.cells_connected(cell, current_cell)
                     )
@@ -80,7 +90,10 @@ class PathGenerator:
                     else:
                         path.pop()
             try:
-                current_cell = min(valid_neighbours, key=lambda c: self.grid.distance_between(c, current_cell))
+                current_cell = min(
+                    valid_neighbours,
+                    key=lambda c: self.grid.distance_between(c, current_cell),
+                )
             except ValueError:
                 return False
             visited_cells.add(current_cell)
@@ -105,7 +118,10 @@ class Game:
         for cell in more_itertools.flatten(self.grid.cells):
             cell.openings.reset_openings()
         self.start = self.grid.cell_at(0, random.randrange(self.grid.dimensions.height))
-        self.end = self.grid.cell_at(self.grid.dimensions.width-1, random.randrange(self.grid.dimensions.height))
+        self.end = self.grid.cell_at(
+            self.grid.dimensions.width - 1,
+            random.randrange(self.grid.dimensions.height),
+        )
 
         self.start.openings.reverse_opening(grid.Direction.LEFT)
         self.end.openings.reverse_opening(grid.Direction.RIGHT)
@@ -114,7 +130,9 @@ class Game:
 
     def move_selection(self, direction: grid.Direction) -> None:
         """Move the current selection in `direction`"""
-        if (target := self.grid.cell_in_direction(self.current_selection, direction)) is not None:
+        if (
+            target := self.grid.cell_in_direction(self.current_selection, direction)
+        ) is not None:
             self.current_selection.render()
             self.current_selection = target
             self.display_selection()
@@ -133,7 +151,9 @@ class Game:
             self.path[-1].render(boxed.terminal.red_on_black)
             self.display_selection()
 
-    def display_selection(self, colour: typing.Optional[typing.Callable] = None) -> None:
+    def display_selection(
+        self, colour: typing.Optional[typing.Callable] = None
+    ) -> None:
         """Display the current selection with `colour` or black on white."""
         if self.current_selection is self.start or self.current_selection is self.end:
             self.current_selection.render(colour or boxed.terminal.bold_red)
@@ -148,12 +168,17 @@ class Game:
 
         The pregenerated path is stored in `self.path`
         """
-        cell_count = self.grid.dimensions.height*self.grid.dimensions.width
-        straight_distance = abs(self.start.x_pos - self.end.x_pos) + abs(self.start.y_pos - self.end.y_pos)
+        cell_count = self.grid.dimensions.height * self.grid.dimensions.width
+        straight_distance = abs(self.start.x_pos - self.end.x_pos) + abs(
+            self.start.y_pos - self.end.y_pos
+        )
 
         self.path = self._path_gen.generate_path(self.start, self.end)
         # regenerate the path if it fills up too much space or is too straight
-        while len(self.path) > cell_count*.75 or len(self.path) < straight_distance * 1.2:
+        while (
+            len(self.path) > cell_count * 0.75
+            or len(self.path) < straight_distance * 1.2
+        ):
             self.path = self._path_gen.generate_path(self.start, self.end)
 
         for cell1, cell2 in more_itertools.windowed(self.path, 2):
@@ -161,10 +186,14 @@ class Game:
 
         # randomize openings of non path cells
         for cell in set(more_itertools.flatten(self.grid.cells)).difference(self.path):
-            if random.random() < .80:
-                for opening_dir in random.sample(list(grid.Direction), random.randrange(2, 5)):
+            if random.random() < 0.80:
+                for opening_dir in random.sample(
+                    list(grid.Direction), random.randrange(2, 5)
+                ):
                     cell.openings.reverse_opening(opening_dir)
-                    if (neighbour := self.grid.cell_in_direction(cell, opening_dir)) is not None:
+                    if (
+                        neighbour := self.grid.cell_in_direction(cell, opening_dir)
+                    ) is not None:
                         neighbour.openings.reverse_opening(opening_dir.opposite())
 
         # rotate ells randomly
@@ -197,7 +226,10 @@ def load_screen() -> None:
                     if hidden_selection:
                         game.display_selection()
                     else:
-                        if game.current_selection == game.start or game.current_selection == game.end:
+                        if (
+                            game.current_selection == game.start
+                            or game.current_selection == game.end
+                        ):
                             game.display_selection(boxed.terminal.red)
                         else:
                             game.display_selection(boxed.terminal.white)
@@ -206,7 +238,11 @@ def load_screen() -> None:
                 elif key == "h":
                     game.display_generated_path()
 
-                elif key.name and (direction := key.name.removeprefix("KEY_")) in grid.Direction.__members__:
+                elif (
+                    key.name
+                    and (direction := key.name.removeprefix("KEY_"))
+                    in grid.Direction.__members__
+                ):
                     game.move_selection(grid.Direction[direction])
 
                 elif key == " ":

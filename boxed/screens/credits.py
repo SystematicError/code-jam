@@ -55,7 +55,9 @@ def show_credits(authors: dict[str, str]) -> None:
                     terminal_size = boxed.terminal.width, boxed.terminal.height
 
                 if key == "b":
-                    Thread(target=lambda: playsound("music/up-down.wav"), daemon=True).start()
+                    Thread(
+                        target=lambda: playsound("music/up-down.wav"), daemon=True
+                    ).start()
                     break
 
 

@@ -46,7 +46,7 @@ try:
             game.load_screen()
 
         elif action == 1:  # Tutorial
-            tutorial.load_screen(open('tutorial.txt', 'r'))
+            tutorial.load_screen(open("tutorial.txt", "r"))
 
         elif action == 2:  # Credits
             credits.load_screen(authors)
