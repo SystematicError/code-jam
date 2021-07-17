@@ -45,14 +45,26 @@ try:
         action = main_menu.load_screen(menu_options)
 
         if action == 0:    # Level selector
-            cell_size = get_int_input("Enter cell size: ", 10, boxed.terminal.height//2)
-            width = get_int_input("Enter grid width: ", 10, boxed.terminal.height//2)
-            height = get_int_input("Enter grid height: ", 10, boxed.terminal.height//2)
-            recursive_elements = get_int_input(
-                "Enter difficulty (number of recursive cells on main puzzle): ",
-                10,
-                boxed.terminal.height//2
-            )
+            cell_size = 0
+            while cell_size <= 0:
+                cell_size = get_int_input("Enter cell size: (min 1)", 10, boxed.terminal.height//2)
+            width = 0
+            while width < 3:
+                width = get_int_input("Enter grid width (min 3): ", 10, boxed.terminal.height//2)
+            height = 0
+            while height < 3:
+                height = get_int_input("Enter grid height (min 3): ", 10, boxed.terminal.height//2)
+            recursive_elements = float("inf")
+            while recursive_elements > width * height // 2:
+                recursive_elements = min(
+                    get_int_input(
+                        f"Enter difficulty (number of recursive cells on main puzzle (max {width * height // 2})): ",
+                        10,
+                        boxed.terminal.height//2
+                    ),
+                    0,
+                )
+
             if game.load_screen(cell_size, width, height, recursive_elements):    # Returns true when game is won
                 break
 
