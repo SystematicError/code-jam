@@ -1,6 +1,5 @@
+from pathlib import Path
 from typing import List
-
-from _io import TextIOWrapper
 
 import boxed
 from boxed.border import draw_boundary
@@ -35,10 +34,10 @@ def display_tutorial(lines: List[str]) -> None:
             print(boxed.terminal.move_down(1) + boxed.terminal.move_x(2), end="")
 
 
-def load_screen(file: TextIOWrapper) -> None:
+def load_screen(file: Path) -> None:
     """Callback for loading screen"""
     with boxed.terminal.hidden_cursor():
-        display_tutorial(file.read().splitlines())
+        display_tutorial(file.read_text(encoding="utf8").splitlines())
         input()
         # When i add the below lines it seems to break the code, nothing gets displayed
 
