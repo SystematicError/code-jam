@@ -36,9 +36,14 @@ def display_tutorial(lines: List[str]) -> None:
 
 def load_screen(file: Path) -> None:
     """Callback for loading screen"""
-    display_tutorial(file.read_text(encoding="utf8").splitlines())
+    tutorial_text = file.read_text(encoding="utf8").splitlines()
+    terminal_size = 0, 0
     with boxed.terminal.hidden_cursor():
         with boxed.terminal.cbreak():
             while True:
-                if boxed.terminal.inkey() == "b":
+                if terminal_size != (boxed.terminal.width, boxed.terminal.height):
+                    display_tutorial(tutorial_text)
+                    terminal_size = (boxed.terminal.width, boxed.terminal.height)
+
+                if boxed.terminal.inkey(timeout=0.1) == "b":
                     return
