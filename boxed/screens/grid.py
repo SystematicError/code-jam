@@ -202,10 +202,49 @@ class Cell:
 
     def get_edge_center(self, edge_loc: Direction) -> WBorder:
         """Get the required center piece of an edge with the openings defined by `self.openings`."""
-        if edge_loc is Direction.UP or edge_loc is Direction.DOWN:
-            return WBorder.VERTICAL_AND_HORIZONTAL if edge_loc in self.openings else WBorder.HORIZONTAL
+        if edge_loc is Direction.UP:
+            neighbour = self._grid.cell_in_direction(self, edge_loc)
+            if edge_loc in self.openings and (neighbour is None or self._grid.cells_connected(self, neighbour)):
+                return WBorder.VERTICAL_AND_HORIZONTAL
+            elif edge_loc in self.openings:
+                return WBorder.DOWN_AND_HORIZONTAL
+            elif neighbour is not None and edge_loc.opposite() in neighbour.openings:
+                return WBorder.UP_AND_HORIZONTAL
+            else:
+                return WBorder.HORIZONTAL
+
+        elif edge_loc is Direction.DOWN:
+            neighbour = self._grid.cell_in_direction(self, edge_loc)
+            if edge_loc in self.openings and (neighbour is None or self._grid.cells_connected(self, neighbour)):
+                return WBorder.VERTICAL_AND_HORIZONTAL
+            elif edge_loc in self.openings:
+                return WBorder.UP_AND_HORIZONTAL
+            elif neighbour is not None and edge_loc.opposite() in neighbour.openings:
+                return WBorder.DOWN_AND_HORIZONTAL
+            else:
+                return WBorder.HORIZONTAL
+
+        elif edge_loc is Direction.LEFT:
+            neighbour = self._grid.cell_in_direction(self, edge_loc)
+            if edge_loc in self.openings and (neighbour is None or self._grid.cells_connected(self, neighbour)):
+                return WBorder.VERTICAL_AND_HORIZONTAL
+            elif edge_loc in self.openings:
+                return WBorder.VERTICAL_AND_RIGHT
+            elif neighbour is not None and edge_loc.opposite() in neighbour.openings:
+                return WBorder.VERTICAL_AND_LEFT
+            else:
+                return WBorder.VERTICAL
+
         else:
-            return WBorder.VERTICAL_AND_HORIZONTAL if edge_loc in self.openings else WBorder.VERTICAL
+            neighbour = self._grid.cell_in_direction(self, edge_loc)
+            if edge_loc in self.openings and (neighbour is None or self._grid.cells_connected(self, neighbour)):
+                return WBorder.VERTICAL_AND_HORIZONTAL
+            elif edge_loc in self.openings:
+                return WBorder.VERTICAL_AND_LEFT
+            elif neighbour is not None and edge_loc.opposite() in neighbour.openings:
+                return WBorder.VERTICAL_AND_RIGHT
+            else:
+                return WBorder.VERTICAL
 
     def __repr__(self):
         return f"<Cell x={self.x_pos}, y={self.y_pos}, size={self.size}, openings={self.openings}>"
