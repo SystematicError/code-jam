@@ -1,21 +1,48 @@
-# import boxed
-# from boxed.border import draw_boundary
+from typing import List
 
-#Gets the content of tutorial.txt and give you back a dict --> dict[heading, content_list]
-def get_pages_content(file_location : str):
-    heading_content_kvp = {}
-    with open(file_location,"rt") as tutf:
-        sections = tutf.read().split("\n\n\n")
-        for mashed_content in sections:
-            mashed_content_lines = mashed_content.split("\n")
-            header = mashed_content_lines[0][1:-2]
-            content = mashed_content_lines[1:]
-            heading_content_kvp[header] = content
-    return heading_content_kvp
+from _io import TextIOWrapper
 
-# print(get_pages_content("../../tutorial.txt"))
+import boxed
+from boxed.border import draw_boundary
 
-"""
-I couldn't write any tui code because the env didnt set up properly for me no matter what I tried (;-;)
-Provided function gets you a dict which you can just call shove content into boiler plate code taken from credits.py
-"""
+
+def display_tutorial(lines: List[str]) -> None:
+    """Wraps and prints tutorial text"""
+    print(boxed.terminal.clear, end="")
+    print(
+        boxed.terminal.move(boxed.terminal.height - 3, boxed.terminal.width - 20)
+        + f"Press {boxed.terminal.white_bold}B{boxed.terminal.normal} to go back"
+    )
+    draw_boundary()
+    print(boxed.terminal.move_xy(2, 2), end="")
+
+    lines = [
+        line.format(
+            title=boxed.terminal.white_underline + boxed.terminal.bold,
+            bold=boxed.terminal.bold,
+            normal=boxed.terminal.normal,
+            breakline=boxed.terminal.white_underline + boxed.terminal.normal
+        )
+        for line in lines
+    ]
+
+    for line in lines:
+        if line.startswith(boxed.terminal.white_underline):
+            print(boxed.terminal.move_down(1) + boxed.terminal.move_x(2), end="")
+
+        for wrapped_line in boxed.terminal.wrap(line, width=boxed.terminal.width - 4):
+            print(wrapped_line, end="")
+            print(boxed.terminal.move_down(1) + boxed.terminal.move_x(2), end="")
+
+
+def load_screen(file: TextIOWrapper) -> None:
+    """Callback for loading screen"""
+    with boxed.terminal.hidden_cursor():
+        display_tutorial(file.read().splitlines())
+        input()
+        # When i add the below lines it seems to break the code, nothing gets displayed
+
+        # with boxed.terminal.cbreak():
+        #     while True:
+        #         if boxed.terminal.inkey() == "b":
+        #             exit()

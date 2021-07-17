@@ -3,7 +3,7 @@ import time
 import blessed
 
 import boxed
-from boxed.screens import credits, grid, main_menu
+from boxed.screens import credits, grid, main_menu, tutorial
 
 boxed.terminal = blessed.Terminal()
 try:
@@ -47,7 +47,7 @@ try:
             grid.load_screen(cell_size=4, width=5, height=5)
 
         elif action == 1:  # Tutorial
-            pass
+            tutorial.load_screen(open('tutorial.txt', 'r'))
 
         elif action == 2:  # Credits
             credits.load_screen(authors)
