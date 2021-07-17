@@ -165,13 +165,14 @@ class Game:
             self.end.render(boxed.terminal.red_on_black)
             self.current_selection.render(colour or boxed.terminal.bold_white)
 
-    def solved(self) -> bool:
+    def solved(self, *, cache: bool = True) -> bool:
         """Verify if there's a valid paths between the ends"""
         if self.path_completed:
             return True
         else:
             completed = self._path_gen.verify_path(self.start, self.end)
-            self.path_completed = completed
+            if cache:
+                self.path_completed = completed
             return completed
 
     def _generate_game(self) -> None:
@@ -197,7 +198,7 @@ class Game:
             self.grid.create_cell_opening(cell1, cell2)
 
         # randomize openings of non path cells
-        while not self.solved():
+        while not self.solved(cache=False):
             for cell in set(more_itertools.flatten(self.grid.cells)).difference(self.path):
                 if random.random() < 0.80:
                     for opening_dir in random.sample(
