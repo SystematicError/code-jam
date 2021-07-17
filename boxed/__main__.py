@@ -5,6 +5,7 @@ import blessed
 
 import boxed
 from boxed.screens import credits, game, main_menu, tutorial, victory
+from boxed.utils import get_int_input
 
 boxed.terminal = blessed.Terminal()
 try:
@@ -44,7 +45,15 @@ try:
         action = main_menu.load_screen(menu_options)
 
         if action == 0:    # Level selector
-            if game.load_screen():    # Returns true when game is won
+            cell_size = get_int_input("Enter cell size: ", 10, boxed.terminal.height//2)
+            width = get_int_input("Enter grid width: ", 10, boxed.terminal.height//2)
+            height = get_int_input("Enter grid height: ", 10, boxed.terminal.height//2)
+            recursive_elements = get_int_input(
+                "Enter difficulty (number of recursive cells on main puzzle): ",
+                10,
+                boxed.terminal.height//2
+            )
+            if game.load_screen(cell_size, width, height, recursive_elements):    # Returns true when game is won
                 break
 
         elif action == 1:    # Tutorial

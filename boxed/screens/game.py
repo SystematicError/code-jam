@@ -247,21 +247,22 @@ class Game:
 class GameTracker:
     """Keep track of a game and the parent trackers which generated this tracker."""
 
-    def __init__(self, game: Game, parent: typing.Optional[GameTracker]):
+    def __init__(self, game: Game, parent: typing.Optional[GameTracker], cell_size: int):
         self.parent = parent
         self.game = game
         self._children = {}
+        self._cell_size = cell_size
 
     def child_tracker(self, cell: grid.Cell) -> GameTracker:
         """Create a tracker instance based on `cell`."""
         if cell not in self._children:
             game = Game(
-                grid.Grid(grid.GridDimensions(2, 4, 4)),
-                self.game.recursive_child_count // 2,
+                grid.Grid(grid.GridDimensions(self._cell_size, 4, 4)),
+                int(self.game.recursive_child_count // 2.5),
             )
             game.start_game()
             self._children[cell] = game
-        return GameTracker(self._children[cell], self)
+        return GameTracker(self._children[cell], self, self._cell_size)
 
     def get_depth(self) -> int:
         """Get the depth of this tracker's game."""
@@ -273,13 +274,22 @@ class GameTracker:
         return count
 
 
-def load_screen() -> bool:
+def load_screen(cell_size: int, game_width: int, game_height: int, recursive_elements: int) -> bool:
     """
     Display and start a game.
 
     return True if the user won the game, False if they exited
     """
-    game_tracker = GameTracker(Game(grid.Grid(grid.GridDimensions(1, 4, 4)), 2), None)
+    game_tracker = GameTracker(
+        Game(
+            grid.Grid(
+                grid.GridDimensions(cell_size, game_width, game_height)
+            ),
+            recursive_elements
+        ),
+        None,
+        cell_size
+    )
 
     terminal_size = 0, 0
     game_tracker.game.start_game()
