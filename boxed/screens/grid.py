@@ -3,12 +3,8 @@ from __future__ import annotations
 import collections.abc
 import enum
 import typing
-from threading import Thread
-
-from playsound import playsound
 
 import boxed
-from boxed.border import draw_boundary
 from boxed.constants import WBorder
 
 WIDTH_MULTIPLIER = 3
@@ -334,25 +330,3 @@ def grid_center_offset_coords(grid_dimensions: GridDimensions) -> tuple[int, int
     x = boxed.terminal.width // 2 - grid_dimensions.char_width // 2
     y = boxed.terminal.height // 2 - grid_dimensions.char_height // 2
     return x, y
-
-
-def load_screen(cell_size: int, width: int, height: int) -> None:
-    """Callback for loading a screen."""
-    grid = Grid(GridDimensions(cell_size, width, height))
-    terminal_size = 0, 0
-
-    while True:
-        with boxed.terminal.hidden_cursor():
-            with boxed.terminal.cbreak():
-                key = boxed.terminal.inkey(timeout=0.1)
-                # Resize border if the terminal size gets changed
-                if (boxed.terminal.width, boxed.terminal.height) != terminal_size:
-                    print(boxed.terminal.clear, end="")
-                    draw_boundary()
-                    grid.print_grid()
-                    terminal_size = boxed.terminal.width, boxed.terminal.height
-
-                # Not B like the other menu's as this one makes you loose progress
-                if key == "s":
-                    Thread(target=lambda: playsound("music/up-down.wav"), daemon=True).start()
-                    break
