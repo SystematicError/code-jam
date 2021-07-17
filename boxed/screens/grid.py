@@ -262,6 +262,72 @@ class Grid:
         print("\n".join(lines))
         return True
 
+    def cell_at(self, x: int, y: int) -> typing.Optional[Cell]:
+        """Get call at `x` and `y`, or None if the cell is out of bounds."""
+        if 0 <= x < self.dimensions.width and 0 <= y < self.dimensions.height:
+            return self.cells[y][x]
+        else:
+            return None
+
+    def cell_in_direction(self, start_cell: Cell, direction: Direction) -> typing.Optional[Cell]:
+        """Get cell in `direction` from `start_cell`, or None if the cell is at an edge."""
+        if direction is Direction.UP:
+            return self.cell_at(start_cell.x_pos, start_cell.y_pos-1)
+        elif direction is Direction.DOWN:
+            return self.cell_at(start_cell.x_pos, start_cell.y_pos+1)
+        elif direction is Direction.LEFT:
+            return self.cell_at(start_cell.x_pos-1, start_cell.y_pos)
+        elif direction is Direction.RIGHT:
+            return self.cell_at(start_cell.x_pos+1, start_cell.y_pos)
+
+    def cells_connected(self, cell1: Cell, cell2: Cell) -> bool:
+        """Check if there is a full connection between `cell1` and `cell2`."""
+        direction = self.get_direction_between(cell1, cell2)
+        if direction is Direction.UP:
+            return Direction.UP in cell1.openings and Direction.DOWN in cell2.openings
+        elif direction is Direction.DOWN:
+            return Direction.DOWN in cell1.openings and Direction.UP in cell2.openings
+        elif direction is Direction.LEFT:
+            return Direction.LEFT in cell1.openings and Direction.RIGHT in cell2.openings
+        else:
+            return Direction.RIGHT in cell1.openings and Direction.LEFT in cell2.openings
+
+    def create_cell_opening(self, cell1: Cell, cell2: Cell) -> None:
+        """Create an opening between two adjacent cells, on edges of both cells."""
+        direction = self.get_direction_between(cell1, cell2)
+        if direction is Direction.RIGHT:
+            cell1.openings.reverse_opening(Direction.RIGHT)
+            cell2.openings.reverse_opening(Direction.LEFT)
+        elif direction is Direction.LEFT:
+            cell1.openings.reverse_opening(Direction.LEFT)
+            cell2.openings.reverse_opening(Direction.RIGHT)
+
+        elif direction is Direction.DOWN:
+            cell1.openings.reverse_opening(Direction.DOWN)
+            cell2.openings.reverse_opening(Direction.UP)
+        else:
+            cell1.openings.reverse_opening(Direction.UP)
+            cell2.openings.reverse_opening(Direction.DOWN)
+
+    @staticmethod
+    def get_direction_between(cell1: Cell, cell2: Cell) -> Direction:
+        """Get the direction from `cell1` to `cell2`."""
+        if cell1.y_pos == cell2.y_pos:
+            if cell1.x_pos < cell2.x_pos:
+                return Direction.RIGHT
+            else:
+                return Direction.LEFT
+        else:
+            if cell1.y_pos < cell2.y_pos:
+                return Direction.DOWN
+            else:
+                return Direction.UP
+
+    @staticmethod
+    def distance_between(cell1: Cell, cell2: Cell) -> int:
+        """Get the manhattan distance between two cells."""
+        return abs(cell1.x_pos - cell2.x_pos) + abs(cell1.y_pos - cell2.y_pos)
+
 
 def grid_center_offset_coords(grid_dimensions: GridDimensions) -> tuple[int, int]:
     """Get coordinates of the top left corner of a centered grid with `grid_dimensions`."""
