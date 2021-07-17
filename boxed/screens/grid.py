@@ -118,12 +118,14 @@ class Cell:
             bottom_right,
         ))
 
-    def render(self, color_func: typing.Callable = lambda x: x) -> None:
+    def render(self, colour: typing.Optional[typing.Callable] = None) -> None:
         """Render the cell at its position in the grid."""
         x, y = self.get_cell_start()
+        if colour is None:
+            colour = boxed.terminal.white_on_black
         for row, line in enumerate(self.generate_cell_lines()):
             print(boxed.terminal.move_xy(x, y + row), end="")
-            print(color_func("".join(line)))
+            print(colour("".join(line)))
 
     def get_cell_start(self) -> tuple[int, int]:
         """Get the coordinates of the left corner of cell."""
