@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import collections.abc
 import enum
 import typing
@@ -17,6 +19,10 @@ class Direction(enum.IntEnum):  # noqa: D101
     RIGHT = 1
     DOWN = 2
     LEFT = 3
+
+    def opposite(self) -> Direction:
+        """Get the direction opposite of `self`."""
+        return Direction((self-2) % 4)
 
 
 class GridDimensions(typing.NamedTuple):
