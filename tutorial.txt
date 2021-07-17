@@ -20,3 +20,5 @@ All the game controls are neatly presented in the corner of your screen but here
 {bold}Enter{normal} - Select an option
 {bold}Space{normal} - Twist a cell
 {bold}H{normal} - A hint; shows the path towards the end
+{breakline}
+Refer to https://github.com/SystematicError/code-jam/tree/master/docs for a in-depth review on game mechanics
