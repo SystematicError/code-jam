@@ -162,6 +162,10 @@ class Game:
             self.end.render(boxed.terminal.red_on_black)
             self.current_selection.render(colour or boxed.terminal.bold_white)
 
+    def ends_connected(self) -> bool:
+        """Verify if there's a valid paths between the ends"""
+        return self._path_gen.verify_path(self.start, self.end)
+
     def _generate_game(self) -> None:
         """
         Generate a game from the current start and end points.
@@ -201,9 +205,13 @@ class Game:
             cell.openings.rotate(random.randrange(0, 4))
 
 
-def load_screen() -> None:
-    """Display and start a game."""
-    game = Game(grid.Grid(grid.GridDimensions(1, 16, 8)))
+def load_screen() -> bool:
+    """
+    Display and start a game.
+
+    return True if the user won the game, False if they exited
+    """
+    game = Game(grid.Grid(grid.GridDimensions(1, 4, 4)))
     terminal_size = 0, 0
     game.start_game()
     while True:
@@ -219,7 +227,7 @@ def load_screen() -> None:
                     terminal_size = boxed.terminal.width, boxed.terminal.height
 
                 if key == "s":
-                    break
+                    return False
 
                 elif key == "h":
                     game.display_generated_path()
@@ -234,3 +242,5 @@ def load_screen() -> None:
                 elif key == " ":
                     game.current_selection.openings.rotate()
                     game.display_selection()
+                    if game.ends_connected():
+                        return True
