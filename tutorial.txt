@@ -1,0 +1,20 @@
+{title}What is the game?{normal}
+Boxed is a recursive puzzle game, all within your terminal!
+{breakline}
+The game starts off fairly simple; you have a grid of cells and you have two marked cells (marked in red) on your grid.
+Each cell consists of anywhere between 1-4 openings and so every time you rotate a cell, you change the positions of the openings.
+{breakline}
+When you twist cells you can make connections with the adjacent cells,
+you can also rotate that cell you just connected to make another connection with it's adjacent cell!
+You keep doing this until you figure out a connection to the other highlighted cell!
+{breakline}
+In essence, all you have to do it create a path between 2 points by rotating cells.
+With automagically generated levels to the game, enhance your inner path finding algorithm with boxed!
+{title}How do I play the game?{normal}
+All the game controls are neatly presented in the corner of your screen but here is a quick explanation:
+{breakline}
+{bold}Ctrl + C{normal} - Force quit
+{bold}B{normal} - Go back to previous menu
+{bold}S{normal} - Stop a game
+{bold}Arrow Keys{normal} - Move around your cell selection
+{bold}Enter{normal} - Select an option or rotate a cell
