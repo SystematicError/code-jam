@@ -271,41 +271,6 @@ class Grid:
                 row.append(Cell(x_pos, y_pos, self))
             self.cells.append(row)
 
-    @staticmethod
-    def get_direction_between(cell1: Cell, cell2: Cell) -> Direction:
-        """Returns the direction from `cell1` to `cell2`"""
-        if cell1.y_pos == cell2.y_pos:
-            if cell1.x_pos < cell2.x_pos:
-                return Direction.RIGHT
-            else:
-                return Direction.LEFT
-        else:
-            if cell1.y_pos < cell2.y_pos:
-                return Direction.DOWN
-            else:
-                return Direction.UP
-
-    @staticmethod
-    def distance_between(cell1: Cell, cell2: Cell) -> int:
-        """Calculates distance from `cell1` to `cell2`"""
-        return abs(cell1.x_pos - cell2.x_pos) + abs(cell1.y_pos - cell2.y_pos)
-
-    def cells_connected(self, cell1: Cell, cell2: Cell) -> bool:
-        """Check if `cell1` and `cell2` are connected together"""
-        direction = self.get_direction_between(cell1, cell2)
-        if direction is Direction.UP:
-            return Direction.UP in cell1.openings and Direction.DOWN in cell2.openings
-        elif direction is Direction.DOWN:
-            return Direction.DOWN in cell1.openings and Direction.UP in cell2.openings
-        elif direction is Direction.LEFT:
-            return (
-                Direction.LEFT in cell1.openings and Direction.RIGHT in cell2.openings
-            )
-        else:
-            return (
-                Direction.RIGHT in cell1.openings and Direction.LEFT in cell2.openings
-            )
-
     def print_grid(self) -> bool:
         """
         Print all cells in a centered grid.
