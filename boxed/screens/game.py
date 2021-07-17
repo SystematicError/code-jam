@@ -3,8 +3,10 @@ from __future__ import annotations
 import collections.abc
 import random
 import typing
+from threading import Thread
 
 import more_itertools
+from playsound import playsound
 
 import boxed
 from boxed import grid
@@ -300,9 +302,11 @@ def load_screen() -> bool:
                     else:
                         game_tracker = game_tracker.parent
                         game_tracker.game.display(game_tracker.get_depth())
+                    Thread(target=lambda: playsound("music/up-down.wav"), daemon=True).start()
 
                 elif key == "h":
                     game_tracker.game.display_generated_path()
+                    Thread(target=lambda: playsound("music/up-down.wav"), daemon=True).start()
 
                 elif (
                     key.name
@@ -312,6 +316,7 @@ def load_screen() -> bool:
                     game_tracker.game.move_selection(grid.Direction[direction])
 
                 elif key == " ":
+                    Thread(target=lambda: playsound("music/up-down.wav"), daemon=True).start()
                     if (
                         game_tracker.game.current_selection
                         in game_tracker.game.recursive_cells
