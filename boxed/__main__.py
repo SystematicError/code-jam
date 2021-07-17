@@ -22,6 +22,7 @@ try:
 
         return False
 
+
 except ModuleNotFoundError:
     pass
 
@@ -55,4 +56,4 @@ try:
 
 except KeyboardInterrupt:
     print(boxed.terminal.move_xy(0, boxed.terminal.height), end="")
-    raise
+    print(boxed.terminal.clear, end="")

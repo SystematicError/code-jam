@@ -36,10 +36,20 @@ def print_options(selection: int, options: list) -> None:
             print(boxed.terminal.red + "Quit" + boxed.terminal.normal)
 
         elif option == "Quit" and idx == selection:
-            print(boxed.terminal.black + boxed.terminal.on_red + "Quit" + boxed.terminal.normal)
+            print(
+                boxed.terminal.black
+                + boxed.terminal.on_red
+                + "Quit"
+                + boxed.terminal.normal
+            )
 
         elif idx == selection:
-            print(boxed.terminal.black + boxed.terminal.on_green + option + boxed.terminal.normal)
+            print(
+                boxed.terminal.black
+                + boxed.terminal.on_green
+                + option
+                + boxed.terminal.normal
+            )
 
         else:
             print(boxed.terminal.green + option + boxed.terminal.normal)
@@ -47,7 +57,7 @@ def print_options(selection: int, options: list) -> None:
     print(
         boxed.terminal.move(boxed.terminal.height - 3, boxed.terminal.width - 29)
         + f"Use {boxed.terminal.white_bold}UP{boxed.terminal.normal} and "
-          f"{boxed.terminal.white_bold}DOWN{boxed.terminal.normal} to navigate"
+        f"{boxed.terminal.white_bold}DOWN{boxed.terminal.normal} to navigate"
     )
 
     print(

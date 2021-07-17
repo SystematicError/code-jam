@@ -15,6 +15,8 @@ KEY_OFFSETS = {
 
 
 class PathGenerator:
+    """Used to create random paths from a start point to a end point"""
+
     def __init__(self, grid: grid.Grid):
         self.grid = grid
         self.visited_cells = set()
@@ -22,7 +24,9 @@ class PathGenerator:
     def neighbours(self, cell: grid.Cell) -> collections.abc.Iterable[grid.Cell]:
         """Get all neighbours around `cell`."""
         for x_offset, y_offset in KEY_OFFSETS.values():
-            neighbour_cell = self.grid.cell_at(cell.x_pos + x_offset, cell.y_pos + y_offset)
+            neighbour_cell = self.grid.cell_at(
+                cell.x_pos + x_offset, cell.y_pos + y_offset
+            )
             if neighbour_cell is not None:
                 yield neighbour_cell
 
@@ -36,12 +40,18 @@ class PathGenerator:
         path = [start]
         current_cell = start
         while current_cell != end:
-            valid_neighbours = tuple(cell for cell in self.neighbours(current_cell) if cell not in visited_cells)
+            valid_neighbours = tuple(
+                cell
+                for cell in self.neighbours(current_cell)
+                if cell not in visited_cells
+            )
 
             if not valid_neighbours:
                 for current_cell in reversed(path.copy()):
                     valid_neighbours = tuple(
-                        cell for cell in self.neighbours(current_cell) if cell not in visited_cells
+                        cell
+                        for cell in self.neighbours(current_cell)
+                        if cell not in visited_cells
                     )
                     if valid_neighbours:
                         break
@@ -63,12 +73,18 @@ class PathGenerator:
         path = [start]
         current_cell = start
         while current_cell != end:
-            valid_neighbours = tuple(cell for cell in self.neighbours(current_cell) if cell not in visited_cells)
+            valid_neighbours = tuple(
+                cell
+                for cell in self.neighbours(current_cell)
+                if cell not in visited_cells
+            )
 
             if not valid_neighbours:
                 for current_cell in reversed(path.copy()):
                     valid_neighbours = tuple(
-                        cell for cell in self.neighbours(current_cell) if cell not in visited_cells
+                        cell
+                        for cell in self.neighbours(current_cell)
+                        if cell not in visited_cells
                     )
                     if valid_neighbours:
                         break
@@ -87,21 +103,28 @@ class PathGenerator:
         current_cell = start
         while current_cell != end:
             valid_neighbours = tuple(
-                cell for cell in self.neighbours(current_cell)
+                cell
+                for cell in self.neighbours(current_cell)
                 if cell not in visited_cells
                 and self.grid.cells_connected(cell, current_cell)
             )
             if not valid_neighbours:
                 for current_cell in reversed(path.copy()):
                     valid_neighbours = tuple(
-                        cell for cell in self.neighbours(current_cell) if cell not in visited_cells and self.grid.cells_connected(cell, current_cell)
+                        cell
+                        for cell in self.neighbours(current_cell)
+                        if cell not in visited_cells
+                        and self.grid.cells_connected(cell, current_cell)
                     )
                     if valid_neighbours:
                         break
                     else:
                         path.pop()
             try:
-                current_cell = min(valid_neighbours, key=lambda c: self.grid.distance_between(c, current_cell))
+                current_cell = min(
+                    valid_neighbours,
+                    key=lambda c: self.grid.distance_between(c, current_cell),
+                )
             except ValueError:
                 return False
             visited_cells.add(current_cell)
@@ -111,6 +134,8 @@ class PathGenerator:
 
 
 class Game:
+    """Game instance"""
+
     def __init__(self, grid: grid.Grid):
         self.grid = grid
         self.path_gen = PathGenerator(self.grid)
@@ -118,22 +143,28 @@ class Game:
         self.start = None
         self.end = None
 
-    def generate_game(self):
+    def generate_game(self) -> None:
+        """Displays the current game"""
         for cell in more_itertools.flatten(self.grid.cells):
             cell.openings.reset_openings()
-        self.start = start = self.grid.cell_at(0, random.randrange(self.grid.dimensions.height))
-        self.end = end = self.grid.cell_at(self.grid.dimensions.width-1, random.randrange(self.grid.dimensions.height))
+        self.start = start = self.grid.cell_at(
+            0, random.randrange(self.grid.dimensions.height)
+        )
+        self.end = end = self.grid.cell_at(
+            self.grid.dimensions.width - 1,
+            random.randrange(self.grid.dimensions.height),
+        )
 
         start.openings.reverse_opening(grid.Direction.LEFT)
         end.openings.reverse_opening(grid.Direction.RIGHT)
 
         path = self.path_gen.generate_path(start, end)
-        cell_count = self.grid.dimensions.height*self.grid.dimensions.width
-        straight_dist = abs(start.x_pos-end.x_pos) + abs(start.y_pos-end.y_pos)
+        cell_count = self.grid.dimensions.height * self.grid.dimensions.width
+        straight_dist = abs(start.x_pos - end.x_pos) + abs(start.y_pos - end.y_pos)
 
         # regenerate the path if it fills up too much space or is too straight
         # modifiers need adjustment to scale with square root of total grid size
-        while len(path) > cell_count*.75 or len(path) < straight_dist * 1.2:
+        while len(path) > cell_count * 0.75 or len(path) < straight_dist * 1.2:
             path = self.path_gen.generate_path(start, end)
 
         for c1, c2 in more_itertools.windowed(path, 2):
@@ -141,16 +172,18 @@ class Game:
 
         # randomize openings of non path openings
         for cell in set(more_itertools.flatten(self.grid.cells)).difference(path):
-            for opening_dir in random.sample(list(grid.Direction), random.randrange(2,5)):
+            for opening_dir in random.sample(
+                list(grid.Direction), random.randrange(2, 5)
+            ):
                 cell.openings.reverse_opening(opening_dir)
-                if (c:=self.grid.cell_in_direction(cell, opening_dir)) is not None:
+                if (c := self.grid.cell_in_direction(cell, opening_dir)) is not None:
                     c.openings.reverse_opening(opening_dir.opposite())
 
-        # rotate ells randomly
+        # rotate cells randomly
         # we need to make sure the end and stat cells point to edges instead of only ending at them
         for cell in more_itertools.flatten(self.grid.cells):
 
-                cell.openings.rotate(random.randrange(1,5))
+            cell.openings.rotate(random.randrange(1, 5))
 
         self.grid.print_grid()
 
@@ -160,7 +193,8 @@ class Game:
         path[-1].render(boxed.terminal.red_on_white)
 
 
-def load_screen():
+def load_screen() -> None:
+    """Callback to load screen"""
     game = Game(grid.Grid(grid.GridDimensions(1, 4, 4)))
     terminal_size = 0, 0
     color = boxed.terminal.black_on_white
@@ -176,7 +210,7 @@ def load_screen():
                 game.grid.print_grid()
                 game.generate_game()
                 terminal_size = boxed.terminal.width, boxed.terminal.height
-                cell = game.grid.cell_at(0,0)
+                cell = game.grid.cell_at(0, 0)
                 cell.render(boxed.terminal.black_on_white)
 
             if key == "b":
@@ -190,7 +224,11 @@ def load_screen():
                 cell = game.grid.cell_at(0, 0)
                 cell.render(color)
 
-            elif key.name and (direction := key.name.removeprefix("KEY_")) in grid.Direction.__members__:
+            elif (
+                key.name
+                and (direction := key.name.removeprefix("KEY_"))
+                in grid.Direction.__members__
+            ):
                 new_cell = game.grid.cell_in_direction(cell, grid.Direction[direction])
                 if new_cell is not None:
                     cell.render()  # blackout old cell
@@ -205,7 +243,9 @@ def load_screen():
                     key = boxed.terminal.inkey()
                     if key.name is not None:
                         if key.name.removeprefix("KEY_") in grid.Direction.__members__:
-                            cell.openings.reverse_opening(grid.Direction[key.name.removeprefix("KEY_")])
+                            cell.openings.reverse_opening(
+                                grid.Direction[key.name.removeprefix("KEY_")]
+                            )
                             cell.render(color)
                         elif key.name == "KEY_ENTER":
                             break

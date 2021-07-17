@@ -9,12 +9,16 @@ def draw_boundary() -> None:
 
     # Left and Right edges
     for row in range(boxed.terminal.height - 2):
-        print(WBorder.VERTICAL, boxed.terminal.move_right(boxed.terminal.width - 4), WBorder.VERTICAL)
+        print(
+            WBorder.VERTICAL,
+            boxed.terminal.move_right(boxed.terminal.width - 4),
+            WBorder.VERTICAL,
+        )
 
     # Bottom edge
     print(
         boxed.terminal.move_xy(0, boxed.terminal.height - 2),
-        WBorder.HORIZONTAL * (boxed.terminal.width - 1)
+        WBorder.HORIZONTAL * (boxed.terminal.width - 1),
     )
 
     # Top left corner
