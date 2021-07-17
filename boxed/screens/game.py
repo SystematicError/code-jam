@@ -112,6 +112,7 @@ class Game:
         self.end = None
         self.current_selection = None
         self._selection_colour = boxed.terminal.black_on_white
+        self.path_completed = False
 
     def start_game(self) -> None:
         """Start the game by picking exit points, generating a valid path and randomizing other cells."""
@@ -164,7 +165,12 @@ class Game:
 
     def ends_connected(self) -> bool:
         """Verify if there's a valid paths between the ends"""
-        return self._path_gen.verify_path(self.start, self.end)
+        if self.path_completed:
+            return True
+        else:
+            completed = self._path_gen.verify_path(self.start, self.end)
+            self.path_completed = completed
+            return completed
 
     def _generate_game(self) -> None:
         """
