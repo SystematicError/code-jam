@@ -9,6 +9,7 @@ This is the documentation for Boxed, a terminal game made for the [Python Discor
 ### Demo
 
 [![Video Demonstration](https://img.youtube.com/vi/qLHOXvELOzI/0.jpg)](https://youtu.be/qLHOXvELOzI)
+
 _Tip: When viewing on YouTube make sure to enable subtitles to see descriptions for each features_
 
 ### Continue reading...
