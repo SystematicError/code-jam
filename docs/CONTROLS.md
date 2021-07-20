@@ -24,4 +24,4 @@ _Note: These keybinds are neatly displayed in the bottom right corner of your te
 
 ### Finished?
 
-After understanding the different keybinds, read through [Game Mechanics](https://github.com/SystematicError/code-jam/tree/master/GAMEPLAY.md) for total Boxed domination!
+After understanding the different keybinds, read through [Game Mechanics](https://github.com/SystematicError/code-jam/tree/master/docs/GAMEPLAY.md) for total Boxed domination!

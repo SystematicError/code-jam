@@ -6,7 +6,7 @@
 
 Hello and welcome to **Boxed**, a recursive puzzle game, all within your terminal! This project was made as a submission for the [Python Discord Summer Code Jam 2021](https://pythondiscord.com/events/code-jams/8/).
 
-A very in-depth guide to installing, setting up and playing this game is available [here](https://github.com/SystematicError/code-jam/tree/master/README.md).
+A very in-depth guide to installing, setting up and playing this game is available [here](https://github.com/SystematicError/code-jam/tree/master/docs/README.md).
 
 ### Installation with poetry
 

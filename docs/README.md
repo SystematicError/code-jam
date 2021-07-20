@@ -13,10 +13,10 @@ _Tip: When viewing on YouTube make sure to enable subtitles to see descriptions 
 
 ### Continue reading...
 
-[Setting up python](https://github.com/SystematicError/code-jam/tree/master/PYTHON_SETUP.md),
-[Installation](https://github.com/SystematicError/code-jam/tree/master/INSTALLATION.md),
-[Controls](https://github.com/SystematicError/code-jam/tree/master/CONTROLS.md),
-[Game Mechanics](https://github.com/SystematicError/code-jam/tree/master/GAMEPLAY.md).
+[Setting up python](https://github.com/SystematicError/code-jam/tree/master/docs/PYTHON_SETUP.md),
+[Installation](https://github.com/SystematicError/code-jam/tree/master/docs/INSTALLATION.md),
+[Controls](https://github.com/SystematicError/code-jam/tree/master/docs/CONTROLS.md),
+[Game Mechanics](https://github.com/SystematicError/code-jam/tree/master/docs/GAMEPLAY.md).
 
 ### Contributors
 

@@ -1,6 +1,6 @@
 # Setting up python
 
-This section of the documentation is aimed towards users who have never used python before and are interested in setting it up. If you already have Python and PIP installed you may proceed to the [installation](https://github.com/SystematicError/code-jam/tree/master/INSTALLATION.md) section.
+This section of the documentation is aimed towards users who have never used python before and are interested in setting it up. If you already have Python and PIP installed you may proceed to the [installation](https://github.com/SystematicError/code-jam/tree/master/docs/INSTALLATION.md) section.
 
 
 ### Checking if python is installed
@@ -40,4 +40,4 @@ It is recommended that the major version be `3.9`, however older `3.x` installat
 
 ### Made it so far?
 
-[Check out how to install the actual project!](https://github.com/SystematicError/code-jam/tree/master/INSTALLATION.md)
+[Check out how to install the actual project!](https://github.com/SystematicError/code-jam/tree/master/docs/INSTALLATION.md)

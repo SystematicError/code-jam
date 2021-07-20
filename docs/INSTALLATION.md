@@ -50,4 +50,4 @@ _Note: Poetry has its own virtual environment managing system, to learn more cli
 
 ### Done already?
 
-Congrats, you have installed Boxed and are ready to go! To launch the program run `python -m boxed` while in the project directory. Make sure to activate your virtualenv if you have one. Go to [Controls](https://github.com/SystematicError/code-jam/tree/master/CONTROLS.md) to master navigation and after that head over to [Game Mechanics](https://github.com/SystematicError/code-jam/tree/master/GAMEPLAY.md) grasp the core mechanics!
+Congrats, you have installed Boxed and are ready to go! To launch the program run `python -m boxed` while in the project directory. Make sure to activate your virtualenv if you have one. Go to [Controls](https://github.com/SystematicError/code-jam/tree/master/docs/CONTROLS.md) to master navigation and after that head over to [Game Mechanics](https://github.com/SystematicError/code-jam/tree/master/docs/GAMEPLAY.md) grasp the core mechanics!

@@ -14,7 +14,7 @@ The game should now prompt you regarding grid width, the larger the value, the l
 
 This setting is similar to the last one, the recommended value is again `5`.
 
-_Note: As mentioned in the [main page](https://github.com/SystematicError/code-jam/tree/master/README.md) there is a bug that causes an exception when entering a value below `3`_
+_Note: As mentioned in the [main page](https://github.com/SystematicError/code-jam/tree/master/docs/README.md) there is a bug that causes an exception when entering a value below `3`_
 
 ![Recursive cell prompt](https://media.discordapp.net/attachments/862971677440737340/867073832078409788/unknown.png)
 
